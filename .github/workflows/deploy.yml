@@ -36,6 +36,18 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           EDGE_AUTH_SECRET: ${{ secrets.EDGE_AUTH_SECRET }}
         run: |
+          if [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
+            echo "GitHub Secret SUPABASE_ACCESS_TOKEN belum dibuat atau kosong."
+            exit 1
+          fi
+          if [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "GitHub Secret SUPABASE_SERVICE_ROLE_KEY belum dibuat atau kosong."
+            exit 1
+          fi
+          if [ -z "$EDGE_AUTH_SECRET" ]; then
+            echo "GitHub Secret EDGE_AUTH_SECRET belum dibuat atau kosong."
+            exit 1
+          fi
           npx supabase secrets set \
             --project-ref vjqqcdniqrqhylxswxmw \
             "SUPABASE_SERVICE_ROLE_KEY=$SUPABASE_SERVICE_ROLE_KEY" \

@@ -1503,7 +1503,18 @@
                     })
                 });
                 const loginResult = await response.json();
-                if (!response.ok || !loginResult.token) throw new Error('Login gagal');
+                if (response.status === 401) {
+                    loginError.innerText = 'Username atau password salah.';
+                    throw new Error('Kredensial login tidak valid');
+                }
+                if (response.status === 404) {
+                    loginError.innerText = 'Layanan login belum aktif. Deploy Edge Function terlebih dahulu.';
+                    throw new Error('Edge Function tidak ditemukan');
+                }
+                if (!response.ok || !loginResult.token) {
+                    loginError.innerText = 'Layanan login sedang bermasalah. Coba lagi nanti.';
+                    throw new Error('Login gagal');
+                }
                 sessionStorage.setItem(TEACHER_SESSION_KEY, 'true');
                 sessionStorage.setItem(TEACHER_TOKEN_KEY, loginResult.token);
                 document.getElementById('teacher-password').value = '';
