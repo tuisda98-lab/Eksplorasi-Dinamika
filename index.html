@@ -104,6 +104,10 @@
                     <i class="fa-solid fa-graduation-cap"></i>
                     <span>Evaluasi Akhir</span>
                 </button>
+                <button onclick="switchTab('nilai-guru')" id="nav-nilai-guru" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold flex items-center space-x-2 transition-all whitespace-nowrap text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                    <span>Nilai Siswa</span>
+                </button>
             </nav>
         </div>
     </header>
@@ -661,6 +665,25 @@
 
                 <!-- Quiz Questions Form -->
                 <form id="quiz-form" onsubmit="submitQuiz(event)" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-5 bg-sky-50/60 dark:bg-sky-950/30 border border-sky-200 dark:border-sky-800 rounded-2xl">
+                        <div class="space-y-2">
+                            <label for="student-name" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Nama Lengkap</label>
+                            <input type="text" id="student-name" name="student-name" required autocomplete="name" placeholder="Masukkan nama lengkap" oninput="updateStudentName(this.value)" class="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                        </div>
+                        <div class="space-y-2">
+                            <label for="student-class" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Kelas</label>
+                            <select id="student-class" name="student-class" required class="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                                <option value="" selected disabled>Pilih kelas</option>
+                                <option value="7A">7A</option>
+                                <option value="7B">7B</option>
+                                <option value="7C">7C</option>
+                                <option value="7D">7D</option>
+                                <option value="7E">7E</option>
+                                <option value="7F">7F</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div id="quiz-container" class="space-y-6">
                         <!-- Questions will be injected here via JavaScript -->
                     </div>
@@ -673,6 +696,91 @@
                         </button>
                     </div>
                 </form>
+            </div>
+        </section>
+
+        <!-- ================= TAB 5: NILAI SISWA ================= -->
+        <section id="tab-nilai-guru" class="tab-content space-y-6">
+            <div id="teacher-login-panel" class="glass-card max-w-lg mx-auto p-6 sm:p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+                <div class="text-center">
+                    <div class="mx-auto w-14 h-14 flex items-center justify-center rounded-2xl bg-sky-100 dark:bg-sky-950 text-sky-600 dark:text-sky-400 text-2xl">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <h3 class="text-2xl font-extrabold text-slate-800 dark:text-slate-100 mt-4">Akses Guru</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Masukkan akun guru untuk melihat hasil nilai siswa.</p>
+                    <p id="teacher-login-error" class="hidden text-sm text-rose-600 dark:text-rose-400 mt-2">Username atau password salah.</p>
+                </div>
+                <form onsubmit="loginTeacher(event)" class="space-y-4">
+                    <div class="space-y-2">
+                        <label for="teacher-username" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Username</label>
+                        <input type="text" id="teacher-username" required autocomplete="username" class="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                    </div>
+                    <div class="space-y-2">
+                        <label for="teacher-password" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Password</label>
+                        <input type="password" id="teacher-password" required autocomplete="current-password" class="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                    </div>
+                    <button type="submit" class="w-full px-5 py-3 bg-sky-500 hover:bg-sky-600 text-white font-bold text-sm rounded-xl shadow-md shadow-sky-500/20 transition-all">
+                        <i class="fa-solid fa-right-to-bracket mr-2"></i> Masuk sebagai Guru
+                    </button>
+                </form>
+            </div>
+
+            <div id="teacher-results-panel" class="hidden glass-card p-6 sm:p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+                <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
+                    <div>
+                        <h3 class="text-2xl font-extrabold text-slate-800 dark:text-slate-100 flex items-center space-x-3">
+                            <i class="fa-solid fa-clipboard-list text-sky-500"></i>
+                            <span>Hasil Nilai Siswa</span>
+                        </h3>
+                        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                            Rekap nilai evaluasi dari seluruh perangkat siswa.
+                        </p>
+                        <p id="results-sync-status" class="text-xs text-slate-500 dark:text-slate-400 mt-2"></p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" onclick="logoutTeacher()" class="px-4 py-2.5 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold text-xs rounded-xl transition-all">
+                            <i class="fa-solid fa-right-from-bracket mr-1"></i> Keluar
+                        </button>
+                        <button type="button" onclick="exportResultsCsv()" class="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl transition-all">
+                            <i class="fa-solid fa-file-csv mr-1"></i> Ekspor CSV
+                        </button>
+                        <button type="button" onclick="clearResults()" class="px-4 py-2.5 bg-rose-100 hover:bg-rose-200 dark:bg-rose-950/50 dark:hover:bg-rose-900 text-rose-700 dark:text-rose-300 font-bold text-xs rounded-xl transition-all">
+                            <i class="fa-solid fa-trash mr-1"></i> Hapus Data
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="p-4 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 rounded-xl">
+                        <div class="text-xs text-slate-500 dark:text-slate-400">Total Pengerjaan</div>
+                        <div id="results-count" class="text-2xl font-extrabold text-sky-600 dark:text-sky-400 mt-1">0</div>
+                    </div>
+                    <div class="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl">
+                        <div class="text-xs text-slate-500 dark:text-slate-400">Rata-rata Nilai</div>
+                        <div id="results-average" class="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">-</div>
+                    </div>
+                    <div class="p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl">
+                        <div class="text-xs text-slate-500 dark:text-slate-400">Jumlah Lulus</div>
+                        <div id="results-passed" class="text-2xl font-extrabold text-amber-600 dark:text-amber-400 mt-1">0</div>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl">
+                    <table class="w-full min-w-[640px] text-left text-sm">
+                        <thead class="bg-slate-100 dark:bg-slate-800 text-xs uppercase text-slate-500 dark:text-slate-400">
+                            <tr>
+                                <th class="px-4 py-3 font-bold">No.</th>
+                                <th class="px-4 py-3 font-bold">Nama</th>
+                                <th class="px-4 py-3 font-bold">Kelas</th>
+                                <th class="px-4 py-3 font-bold">Nilai</th>
+                                <th class="px-4 py-3 font-bold">Status</th>
+                                <th class="px-4 py-3 font-bold">Tanggal Pengerjaan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-table-body" class="divide-y divide-slate-200 dark:divide-slate-800"></tbody>
+                    </table>
+                </div>
+                <p id="results-empty" class="text-center text-sm text-slate-500 dark:text-slate-400 py-4">Belum ada hasil evaluasi tersimpan.</p>
             </div>
         </section>
 
@@ -742,7 +850,7 @@
                     // Read student name if provided by LMS
                     var learnerName = scormAPI.LMSGetValue("cmi.core.student_name");
                     if (learnerName && learnerName !== "") {
-                        document.getElementById('student-name-display').innerText = learnerName;
+                        updateStudentName(learnerName);
                     }
 
                     // Check existing lesson status
@@ -803,6 +911,12 @@
             simulationsPlayed: false,
             score: null
         };
+        const RESULTS_STORAGE_KEY = 'geolearn_evaluation_results';
+        const SUPABASE_URL = 'https://vjqqcdniqrqhylxswxmw.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_teO9YW952HhkOuiSRNeBvg_Q48cyyyp';
+        const EVALUATION_API_ENDPOINT = `${SUPABASE_URL}/functions/v1/evaluation-api`;
+        const TEACHER_SESSION_KEY = 'geolearn_teacher_authenticated';
+        const TEACHER_TOKEN_KEY = 'geolearn_teacher_token';
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -820,6 +934,9 @@
                 progressState.simulationsPlayed = true;
                 updateDashboardMetrics();
                 setTimeout(initCanvasSimulation, 100);
+            }
+            if (tabId === 'nilai-guru') {
+                updateTeacherAccess();
             }
         }
 
@@ -842,6 +959,19 @@
         function updateDashboardMetrics() {
             document.getElementById('progress-materi-text').innerText = `${progressState.materiRead.size} / 4 Sub-bab`;
             document.getElementById('progress-sim-text').innerText = progressState.simulationsPlayed ? "Sudah Dicoba" : "Belum Dicoba";
+        }
+
+        function updateStudentName(name) {
+            const trimmedName = name.trim();
+            const nameDisplay = document.getElementById('student-name-display');
+            const nameInput = document.getElementById('student-name');
+
+            if (nameDisplay) {
+                nameDisplay.innerText = trimmedName || 'Siswa IPS';
+            }
+            if (nameInput && nameInput.value !== name) {
+                nameInput.value = name;
+            }
         }
 
         function toggleTheme() {
@@ -1269,7 +1399,7 @@
             });
         }
 
-        function submitQuiz(e) {
+        async function submitQuiz(e) {
             e.preventDefault();
 
             let correctCount = 0;
@@ -1292,6 +1422,7 @@
             // Calculate final score out of 100
             const finalScore = Math.round((correctCount / quizQuestions.length) * 100);
             progressState.score = finalScore;
+            const savedOnline = await saveEvaluationResult(finalScore);
 
             // Display result banner
             const summaryBox = document.getElementById('quiz-score-summary');
@@ -1317,6 +1448,247 @@
             sendSCORMData(finalScore);
         }
 
+        function getEvaluationResults() {
+            try {
+                const savedResults = JSON.parse(localStorage.getItem(RESULTS_STORAGE_KEY) || '[]');
+                return Array.isArray(savedResults) ? savedResults : [];
+            } catch (error) {
+                console.warn('Data nilai tidak dapat dibaca:', error);
+                return [];
+            }
+        }
+
+        async function hashTeacherPassword(password) {
+            const passwordData = new TextEncoder().encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', passwordData);
+            return Array.from(new Uint8Array(hashBuffer)).map(byte => byte.toString(16).padStart(2, '0')).join('');
+        }
+
+        function isTeacherAuthenticated() {
+            return sessionStorage.getItem(TEACHER_SESSION_KEY) === 'true' && Boolean(sessionStorage.getItem(TEACHER_TOKEN_KEY));
+        }
+
+        function clearLegacyTeacherStorage() {
+            ['teacher_username', 'teacher_password', 'teacher_credentials', 'teacher_authenticated'].forEach(key => {
+                localStorage.removeItem(key);
+            });
+        }
+
+        function updateTeacherAccess() {
+            const isAuthenticated = isTeacherAuthenticated();
+            document.getElementById('teacher-login-panel').classList.toggle('hidden', isAuthenticated);
+            document.getElementById('teacher-results-panel').classList.toggle('hidden', !isAuthenticated);
+            if (isAuthenticated) {
+            renderEvaluationResults();
+            }
+        }
+
+        async function loginTeacher(event) {
+            event.preventDefault();
+            const username = document.getElementById('teacher-username').value.trim();
+            const password = document.getElementById('teacher-password').value;
+            const loginError = document.getElementById('teacher-login-error');
+
+            try {
+                const response = await fetch(EVALUATION_API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        apikey: SUPABASE_ANON_KEY,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'login',
+                        username,
+                        passwordHash: await hashTeacherPassword(password)
+                    })
+                });
+                const loginResult = await response.json();
+                if (!response.ok || !loginResult.token) throw new Error('Login gagal');
+                sessionStorage.setItem(TEACHER_SESSION_KEY, 'true');
+                sessionStorage.setItem(TEACHER_TOKEN_KEY, loginResult.token);
+                document.getElementById('teacher-password').value = '';
+                loginError.classList.add('hidden');
+                updateTeacherAccess();
+            } catch (error) {
+                console.warn('Verifikasi login guru gagal:', error);
+                loginError.classList.remove('hidden');
+            }
+        }
+
+        function logoutTeacher() {
+            sessionStorage.removeItem(TEACHER_SESSION_KEY);
+            sessionStorage.removeItem(TEACHER_TOKEN_KEY);
+            document.getElementById('teacher-username').value = '';
+            document.getElementById('teacher-password').value = '';
+            updateTeacherAccess();
+        }
+
+        async function saveEvaluationResult(score) {
+            const name = document.getElementById('student-name').value.trim();
+            const studentClass = document.getElementById('student-class').value;
+            const result = {
+                id: Date.now(),
+                name,
+                studentClass,
+                score,
+                completedAt: new Date().toISOString()
+            };
+            const results = getEvaluationResults();
+            results.push(result);
+            localStorage.setItem(RESULTS_STORAGE_KEY, JSON.stringify(results));
+
+            try {
+                const response = await fetch(EVALUATION_API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        apikey: SUPABASE_ANON_KEY,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'submit',
+                        name: result.name,
+                        studentClass: result.studentClass,
+                        score: result.score
+                    })
+                });
+                if (!response.ok) throw new Error(`Evaluation API HTTP ${response.status}`);
+                return true;
+            } catch (error) {
+                console.warn('Hasil disimpan lokal karena sinkronisasi online gagal:', error);
+                return false;
+            }
+        }
+
+        function escapeHtml(value) {
+            return String(value).replace(/[&<>'"]/g, character => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                "'": '&#39;',
+                '"': '&quot;'
+            })[character]);
+        }
+
+        function formatResultDate(isoDate) {
+            return new Intl.DateTimeFormat('id-ID', {
+                dateStyle: 'medium',
+                timeStyle: 'short'
+            }).format(new Date(isoDate));
+        }
+
+        async function fetchOnlineResults() {
+            const response = await fetch(EVALUATION_API_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    apikey: SUPABASE_ANON_KEY,
+                    Authorization: `Bearer ${sessionStorage.getItem(TEACHER_TOKEN_KEY)}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ action: 'list' })
+            });
+            if (!response.ok) throw new Error(`Evaluation API HTTP ${response.status}`);
+            return (await response.json()).map(result => ({
+                id: result.id,
+                name: result.name,
+                studentClass: result.student_class,
+                score: result.score,
+                completedAt: result.completed_at
+            }));
+        }
+
+        async function renderEvaluationResults() {
+            let results;
+            let isOnline = false;
+            const syncStatus = document.getElementById('results-sync-status');
+            try {
+                results = await fetchOnlineResults();
+                isOnline = true;
+            } catch (error) {
+                console.warn('Rekap online tidak dapat dimuat:', error);
+                results = getEvaluationResults();
+            }
+
+            if (syncStatus) {
+                syncStatus.innerHTML = isOnline
+                    ? '<i class="fa-solid fa-cloud text-emerald-500 mr-1"></i> Tersinkron online dari Supabase'
+                    : '<i class="fa-solid fa-cloud-arrow-down text-amber-500 mr-1"></i> Offline: menampilkan cache perangkat ini';
+            }
+
+            const tableBody = document.getElementById('results-table-body');
+            const emptyMessage = document.getElementById('results-empty');
+            const countElement = document.getElementById('results-count');
+            const averageElement = document.getElementById('results-average');
+            const passedElement = document.getElementById('results-passed');
+
+            if (!tableBody) return;
+
+            const sortedResults = [...results].sort((first, second) => new Date(second.completedAt) - new Date(first.completedAt));
+            tableBody.innerHTML = sortedResults.map((result, index) => {
+                const isPassed = Number(result.score) >= 75;
+                return `
+                    <tr class="bg-white dark:bg-slate-900/40 hover:bg-slate-50 dark:hover:bg-slate-800/60">
+                        <td class="px-4 py-3 text-slate-500 dark:text-slate-400">${index + 1}</td>
+                        <td class="px-4 py-3 font-semibold text-slate-800 dark:text-slate-100">${escapeHtml(result.name)}</td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-300">${escapeHtml(result.studentClass)}</td>
+                        <td class="px-4 py-3 font-extrabold text-sky-600 dark:text-sky-400">${Number(result.score)} / 100</td>
+                        <td class="px-4 py-3"><span class="px-2 py-1 rounded-lg text-xs font-bold ${isPassed ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300'}">${isPassed ? 'Lulus' : 'Belum Lulus'}</span></td>
+                        <td class="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap">${formatResultDate(result.completedAt)}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            countElement.innerText = results.length;
+            averageElement.innerText = results.length ? `${Math.round(results.reduce((total, result) => total + Number(result.score), 0) / results.length)} / 100` : '-';
+            passedElement.innerText = results.filter(result => Number(result.score) >= 75).length;
+            emptyMessage.classList.toggle('hidden', results.length > 0);
+        }
+
+        function exportResultsCsv() {
+            const results = getEvaluationResults();
+            if (!results.length) {
+                alert('Belum ada data nilai untuk diekspor.');
+                return;
+            }
+
+            const csvRows = [
+                ['Nama', 'Kelas', 'Nilai', 'Status', 'Tanggal Pengerjaan'],
+                ...results.map(result => [
+                    result.name,
+                    result.studentClass,
+                    result.score,
+                    Number(result.score) >= 75 ? 'Lulus' : 'Belum Lulus',
+                    formatResultDate(result.completedAt)
+                ])
+            ];
+            const csvContent = '\ufeff' + csvRows.map(row => row.map(value => `"${String(value).replace(/"/g, '""')}"`).join(',')).join('\n');
+            const downloadLink = document.createElement('a');
+            downloadLink.href = URL.createObjectURL(new Blob([csvContent], { type: 'text/csv;charset=utf-8;' }));
+            downloadLink.download = `hasil-evaluasi-${new Date().toISOString().slice(0, 10)}.csv`;
+            downloadLink.click();
+            URL.revokeObjectURL(downloadLink.href);
+        }
+
+        async function clearResults() {
+            if (getEvaluationResults().length && confirm('Hapus semua data nilai yang tersimpan di browser ini?')) {
+                localStorage.removeItem(RESULTS_STORAGE_KEY);
+                try {
+                    const response = await fetch(EVALUATION_API_ENDPOINT, {
+                        method: 'POST',
+                        headers: {
+                            apikey: SUPABASE_ANON_KEY,
+                            Authorization: `Bearer ${sessionStorage.getItem(TEACHER_TOKEN_KEY)}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ action: 'delete' })
+                    });
+                    if (!response.ok) throw new Error(`Evaluation API HTTP ${response.status}`);
+                } catch (error) {
+                    console.warn('Data online tidak dapat dihapus:', error);
+                }
+                renderEvaluationResults();
+            }
+        }
+
         function updateScoreDisplay(score) {
             document.getElementById('score-display-text').innerText = score + ' / 100';
             const statusEl = document.getElementById('status-display-text');
@@ -1333,6 +1705,8 @@
            6. INITIALIZATION & RESIZE EVENT LISTENERS
            ========================================================================== */
         window.onload = function() {
+            clearLegacyTeacherStorage();
+
             // Restore saved theme
             if (localStorage.getItem('theme') === 'dark') {
                 document.documentElement.classList.add('dark');
@@ -1347,6 +1721,7 @@
 
             // Setup Evaluation Quiz
             renderQuiz();
+            updateTeacherAccess();
 
             // Resize Canvas dynamically
             window.addEventListener('resize', () => {
