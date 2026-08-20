@@ -6,7 +6,7 @@ Install and log in to the Supabase CLI, then run from the repository root:
 
 ```powershell
 supabase functions deploy evaluation-api --no-verify-jwt
-supabase secrets set SUPABASE_SERVICE_ROLE_KEY="PASTE_SERVICE_ROLE_KEY_HERE" EDGE_AUTH_SECRET="GENERATE_A_LONG_RANDOM_SECRET_HERE"
+supabase secrets set DB_SERVICE_ROLE_KEY="PASTE_SERVICE_ROLE_KEY_HERE" EDGE_AUTH_SECRET="GENERATE_A_LONG_RANDOM_SECRET_HERE"
 ```
 
 Set secrets before deploying or redeploy after setting them. Never commit either secret or put them in `index.html`.
