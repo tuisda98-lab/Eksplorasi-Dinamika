@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Pembelajaran Interaktif: Cuaca dan Iklim (IPS SMP Kelas 7)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1', 800: '#075985' },
+                        climate: { 50: '#fefce8', 500: '#eab308', 600: '#ca8a04' }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+        }
+        .dark .glass-card {
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(12px);
+        }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-300">
+
+    <!-- Top Navigation Header -->
+    <header class="sticky top-0 z-50 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo & Subject Info -->
+                <div class="flex items-center space-x-3">
+                    <div class="p-2.5 bg-gradient-to-tr from-sky-500 to-blue-600 rounded-xl text-white shadow-md shadow-sky-500/20">
+                        <i class="fa-solid font-bold fa-cloud-sun-rain text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold bg-gradient-to-r from-sky-600 to-blue-700 dark:from-sky-400 dark:to-blue-400 bg-clip-text text-transparent">
+                            GeoLearn IPS
+                        </h1>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Cuaca & Iklim • SMP Kelas 7</p>
+                    </div>
+                </div>
+
+                <!-- SCORM Connection Badge & Theme Toggle -->
+                <div class="flex items-center space-x-3">
+                    <!-- SCORM Status Badge -->
+                    <div id="scorm-badge" class="hidden sm:flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+                        <span class="relative flex h-2 w-2">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                        <span id="scorm-status-text">LMS Connected (SCORM 1.2)</span>
+                    </div>
+
+                    <!-- Audio Reader Switch -->
+                    <button id="tts-toggle" onclick="toggleAudioNarration()" title="Naratorkan Teks Materi" class="p-2.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all">
+                        <i id="tts-icon" class="fa-solid fa-volume-high"></i>
+                    </button>
+
+                    <!-- Theme Toggle -->
+                    <button onclick="toggleTheme()" class="p-2.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all" title="Ubah Mode Tampilan">
+                        <i id="theme-icon" class="fa-solid fa-moon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab Navigation Buttons -->
+            <nav class="flex space-x-1 sm:space-x-4 overflow-x-auto py-2 scrollbar-none border-t border-slate-100 dark:border-slate-800">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="tab-btn active px-4 py-2 rounded-xl text-sm font-semibold flex items-center space-x-2 transition-all whitespace-nowrap bg-sky-500 text-white shadow-md shadow-sky-500/20">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button onclick="switchTab('materi')" id="nav-materi" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold flex items-center space-x-2 transition-all whitespace-nowrap text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>Modul Materi</span>
+                </button>
+                <button onclick="switchTab('simulasi')" id="nav-simulasi" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold flex items-center space-x-2 transition-all whitespace-nowrap text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                    <i class="fa-solid fa-flask"></i>
+                    <span>Simulasi Interaktif</span>
+                </button>
+                <button onclick="switchTab('evaluasi')" id="nav-evaluasi" class="tab-btn px-4 py-2 rounded-xl text-sm font-semibold flex items-center space-x-2 transition-all whitespace-nowrap text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <span>Evaluasi Akhir</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- ================= TAB 1: DASHBOARD ================= -->
+        <section id="tab-dashboard" class="tab-content active space-y-6">
+            <!-- Welcome Hero Banner -->
+            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-sky-600 via-blue-600 to-indigo-700 text-white p-6 sm:p-8 shadow-xl">
+                <div class="absolute -right-10 -bottom-10 opacity-10 text-9xl">
+                    <i class="fa-solid fa-cloud-sun"></i>
+                </div>
+                <div class="relative z-10 max-w-2xl">
+                    <span class="px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-xs font-semibold tracking-wide uppercase">
+                        Kurikulum Merdeka • IPS SMP Kelas VII
+                    </span>
+                    <h2 class="text-2xl sm:text-4xl font-extrabold mt-3 leading-tight">
+                        Eksplorasi Dinamika Cuaca & Iklim Bumi
+                    </h2>
+                    <p class="mt-3 text-sky-100 text-sm sm:text-base leading-relaxed">
+                        Selamat datang <span id="student-name-display" class="font-bold underline decoration-amber-400">Siswa IPS</span>! Pelajari unsur-unsur pembentuk cuaca, fenomena iklim Indonesia, hingga dampaknya bagi kehidupann sehari-hari melalui visualisasi interaktif dan simulasi lingkungan.
+                    </p>
+                    <div class="mt-6 flex flex-wrap gap-3">
+                        <button onclick="switchTab('materi')" class="px-5 py-2.5 bg-white text-sky-700 hover:bg-sky-50 font-bold text-sm rounded-xl transition-all shadow-md flex items-center space-x-2">
+                            <span>Mulai Belajar</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                        <button onclick="switchTab('simulasi')" class="px-5 py-2.5 bg-sky-500/40 hover:bg-sky-500/60 border border-white/30 text-white font-semibold text-sm rounded-xl transition-all flex items-center space-x-2">
+                            <i class="fa-solid fa-play"></i>
+                            <span>Coba Simulator</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Learning Metrics Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="glass-card p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center space-x-4">
+                    <div class="p-3 bg-sky-100 dark:bg-sky-950 text-sky-600 dark:text-sky-400 rounded-xl text-2xl">
+                        <i class="fa-solid fa-book"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">Progres Materi</div>
+                        <div id="progress-materi-text" class="text-xl font-bold text-slate-800 dark:text-slate-100">0 / 4 Bab</div>
+                    </div>
+                </div>
+                <div class="glass-card p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center space-x-4">
+                    <div class="p-3 bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 rounded-xl text-2xl">
+                        <i class="fa-solid fa-gamepad"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">Simulasi Praktikum</div>
+                        <div id="progress-sim-text" class="text-xl font-bold text-slate-800 dark:text-slate-100">Belum Dicoba</div>
+                    </div>
+                </div>
+                <div class="glass-card p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center space-x-4">
+                    <div class="p-3 bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 rounded-xl text-2xl">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">Skor Evaluasi</div>
+                        <div id="score-display-text" class="text-xl font-bold text-slate-800 dark:text-slate-100">- / 100</div>
+                    </div>
+                </div>
+                <div class="glass-card p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center space-x-4">
+                    <div class="p-3 bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 rounded-xl text-2xl">
+                        <i class="fa-solid fa-check-double"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">Status Kelulusan</div>
+                        <div id="status-display-text" class="text-sm font-bold text-slate-500">Belum Selesai</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Target & Capaian Pembelajaran -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 glass-card p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                    <div class="flex items-center space-x-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+                        <i class="fa-solid fa-bullseye text-sky-600 text-xl"></i>
+                        <h3 class="text-lg font-bold">Capaian Pembelajaran (CP) & Indikator</h3>
+                    </div>
+                    <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        Peserta didik mampu memahami keberadaan diri dan keluarga di tengah lingkungan sosial dan fisik sekitar, khususnya dalam menganalisis fenomena cuaca dan iklim serta dampaknya bagi kehidupan manusia.
+                    </p>
+                    <div class="space-y-3 pt-2">
+                        <div class="flex items-start space-x-3">
+                            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-600 dark:text-sky-400 font-bold text-xs flex items-center justify-center">1</span>
+                            <p class="text-sm text-slate-700 dark:text-slate-300"><strong class="font-semibold">Membedakan Konsep:</strong> Memahami perbedaan fundamental antara cuaca dan iklim berdasarkan cakupan waktu dan wilayah.</p>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-600 dark:text-sky-400 font-bold text-xs flex items-center justify-center">2</span>
+                            <p class="text-sm text-slate-700 dark:text-slate-300"><strong class="font-semibold">Menganalisis Unsur:</strong> Mengidentifikasi 6 unsur pembentuk cuaca (Suhu, Tekanan, Angin, Kelembapan, Curah Hujan, Sinar Matahari) beserta alat ukurnya.</p>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-600 dark:text-sky-400 font-bold text-xs flex items-center justify-center">3</span>
+                            <p class="text-sm text-slate-700 dark:text-slate-300"><strong class="font-semibold">Klasifikasi & Dampak:</strong> Menjelaskan iklim tropis Indonesia, pola angin Muson Barat & Timur, serta mitigasi perubahan iklim.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Fact Card -->
+                <div class="glass-card p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between bg-gradient-to-br from-sky-500/5 to-indigo-500/5">
+                    <div>
+                        <div class="flex items-center space-x-2 text-amber-500 font-bold text-xs uppercase tracking-wider mb-2">
+                            <i class="fa-solid fa-lightbulb"></i>
+                            <span>Tahukah Kamu?</span>
+                        </div>
+                        <h4 class="font-bold text-base text-slate-800 dark:text-slate-100">Hukum Mokhamad Braak (Gradient Termis)</h4>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">
+                            Setiap kita naik ketinggian tempat sebesar <strong class="text-sky-600 dark:text-sky-400">100 meter</strong> di wilayah tropis, suhu udara rata-rata akan **turun sebesar ±0,6°C**! Itulah sebabnya daerah pegunungan seperti Puncak atau Malang terasa sejuk.
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800">
+                        <a href="#" onclick="switchTab('simulasi'); return false;" class="text-xs font-bold text-sky-600 dark:text-sky-400 hover:underline flex items-center justify-between">
+                            <span>Uji Rumus ini di Simulator</span>
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 2: MODUL MATERI ================= -->
+        <section id="tab-materi" class="tab-content space-y-6">
+            <!-- Sub-navigation for Modules -->
+            <div class="flex flex-wrap gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
+                <button onclick="switchMateriSubTab('m1')" id="materi-btn-m1" class="materi-sub-btn active px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-sky-500 text-white shadow-sm">
+                    1. Pengertian Cuaca vs Iklim
+                </button>
+                <button onclick="switchMateriSubTab('m2')" id="materi-btn-m2" class="materi-sub-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                    2. Unsur & Alat Ukur
+                </button>
+                <button onclick="switchMateriSubTab('m3')" id="materi-btn-m3" class="materi-sub-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                    3. Iklim Indonesia & Muson
+                </button>
+                <button onclick="switchMateriSubTab('m4')" id="materi-btn-m4" class="materi-sub-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                    4. Perubahan Iklim Global
+                </button>
+            </div>
+
+            <!-- SUB-TAB 1: Cuaca vs Iklim -->
+            <div id="materi-m1" class="materi-section space-y-6">
+                <div class="glass-card p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                    <h3 class="text-xl font-bold text-sky-600 dark:text-sky-400 flex items-center space-x-2">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>Perbedaan Utama Cuaca dan Iklim</span>
+                    </h3>
+                    <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        Meskipun sering dianggap sama, <strong class="text-slate-800 dark:text-slate-100">Cuaca</strong> dan <strong class="text-slate-800 dark:text-slate-100">Iklim</strong> memiliki perbedaan mendasar pada rentang waktu pengamatan dan luas wilayahnya.
+                    </p>
+
+                    <!-- VISUAL GRAPHIC COMPARISON CARDS -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 my-6">
+                        <!-- Card 1: Visual Cuaca -->
+                        <div class="p-5 rounded-2xl bg-gradient-to-br from-sky-500/10 via-blue-500/5 to-transparent border border-sky-200 dark:border-sky-800/60 shadow-sm relative overflow-hidden space-y-3">
+                            <div class="flex items-center justify-between border-b border-sky-200 dark:border-sky-800/50 pb-3">
+                                <div class="flex items-center space-x-3">
+                                    <div class="p-2.5 bg-sky-500 text-white rounded-xl shadow-md">
+                                        <i class="fa-solid fa-cloud-sun-rain text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-extrabold text-base text-sky-900 dark:text-sky-200">CUACA (Weather)</h4>
+                                        <span class="text-[11px] font-semibold text-sky-600 dark:text-sky-400 uppercase tracking-wider">Kondisi Saat Ini / Harian</span>
+                                    </div>
+                                </div>
+                                <span class="px-2.5 py-1 bg-sky-100 dark:bg-sky-900/60 text-sky-700 dark:text-sky-300 text-xs font-bold rounded-full">1 Hari / Jam</span>
+                            </div>
+
+                            <!-- Timeline Graphic Example -->
+                            <div class="bg-white/80 dark:bg-slate-800/80 p-3.5 rounded-xl border border-sky-100 dark:border-slate-700 space-y-2">
+                                <div class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                                    <span><i class="fa-solid fa-clock mr-1 text-sky-500"></i> Gambaran Harian di Kota Bandung:</span>
+                                    <span class="text-[10px] text-slate-400">Dinamis</span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2 text-center text-xs pt-1">
+                                    <div class="p-2 bg-amber-50 dark:bg-amber-950/40 rounded-lg border border-amber-200 dark:border-amber-800/40">
+                                        <i class="fa-solid fa-sun text-amber-500 text-lg mb-1 block"></i>
+                                        <div class="font-bold text-slate-800 dark:text-slate-200">07:00 WIB</div>
+                                        <div class="text-[11px] text-amber-700 dark:text-amber-300">Cerah 23°C</div>
+                                    </div>
+                                    <div class="p-2 bg-blue-50 dark:bg-blue-950/40 rounded-lg border border-blue-200 dark:border-blue-800/40">
+                                        <i class="fa-solid fa-cloud-showers-heavy text-blue-500 text-lg mb-1 block animate-bounce"></i>
+                                        <div class="font-bold text-slate-800 dark:text-slate-200">13:00 WIB</div>
+                                        <div class="text-[11px] text-blue-700 dark:text-blue-300">Hujan 19°C</div>
+                                    </div>
+                                    <div class="p-2 bg-slate-100 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600">
+                                        <i class="fa-solid fa-cloud-moon text-indigo-400 text-lg mb-1 block"></i>
+                                        <div class="font-bold text-slate-800 dark:text-slate-200">19:00 WIB</div>
+                                        <div class="text-[11px] text-slate-600 dark:text-slate-300">Berawan 21°C</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-600 dark:text-slate-300 italic">
+                                💡 <strong>Ciri Khas:</strong> Berubah cepat dalam hitungan jam dan berlaku hanya di area sempit (misal: kecamatan atau kota setempat).
+                            </p>
+                        </div>
+
+                        <!-- Card 2: Visual Iklim -->
+                        <div class="p-5 rounded-2xl bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent border border-indigo-200 dark:border-indigo-800/60 shadow-sm relative overflow-hidden space-y-3">
+                            <div class="flex items-center justify-between border-b border-indigo-200 dark:border-indigo-800/50 pb-3">
+                                <div class="flex items-center space-x-3">
+                                    <div class="p-2.5 bg-indigo-600 text-white rounded-xl shadow-md">
+                                        <i class="fa-solid fa-calendar-days text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-extrabold text-base text-indigo-900 dark:text-indigo-200">IKLIM (Climate)</h4>
+                                        <span class="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Rata-rata Jangka Panjang</span>
+                                    </div>
+                                </div>
+                                <span class="px-2.5 py-1 bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-xs font-bold rounded-full">30+ Tahun</span>
+                            </div>
+
+                            <!-- Seasonal Pattern Graphic Example -->
+                            <div class="bg-white/80 dark:bg-slate-800/80 p-3.5 rounded-xl border border-indigo-100 dark:border-slate-700 space-y-2">
+                                <div class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                                    <span><i class="fa-solid fa-earth-asia mr-1 text-indigo-500"></i> Pola Iklim Tropis Indonesia:</span>
+                                    <span class="text-[10px] text-slate-400">Konstan & Berulang</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2 text-center text-xs pt-1">
+                                    <div class="p-2 bg-sky-50 dark:bg-sky-950/40 rounded-lg border border-sky-200 dark:border-sky-800/40 flex items-center space-x-2 text-left">
+                                        <i class="fa-solid fa-cloud-rain text-sky-500 text-2xl flex-shrink-0"></i>
+                                        <div>
+                                            <div class="font-bold text-slate-800 dark:text-slate-200 text-[11px]">Musim Hujan</div>
+                                            <div class="text-[10px] text-sky-600 dark:text-sky-400">Okt - April (Muson Barat)</div>
+                                        </div>
+                                    </div>
+                                    <div class="p-2 bg-amber-50 dark:bg-amber-950/40 rounded-lg border border-amber-200 dark:border-amber-800/40 flex items-center space-x-2 text-left">
+                                        <i class="fa-solid fa-sun text-amber-500 text-2xl flex-shrink-0"></i>
+                                        <div>
+                                            <div class="font-bold text-slate-800 dark:text-slate-200 text-[11px]">Musim Kemarau</div>
+                                            <div class="text-[10px] text-amber-600 dark:text-amber-400">April - Okt (Muson Timur)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-600 dark:text-slate-300 italic">
+                                💡 <strong>Ciri Khas:</strong> Merupakan pola cuaca rata-rata yang diamati selama puluhan tahun di wilayah sangat luas (seperti negara atau benua).
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Analogy Box for Easy Understanding -->
+                    <div class="p-4 bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 rounded-xl flex items-start space-x-3">
+                        <div class="p-2 bg-amber-500 text-white rounded-lg flex-shrink-0 mt-0.5">
+                            <i class="fa-solid fa-shirt text-lg"></i>
+                        </div>
+                        <div class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+                            <strong class="font-bold text-amber-900 dark:text-amber-300">Analogi Mudah Disukai Siswa:</strong>
+                            <ul class="list-disc list-inside mt-1 space-y-1">
+                                <li><strong class="text-sky-600 dark:text-sky-400">Cuaca</strong> itu seperti <em class="underline decoration-sky-400">Pakaian yang kamu pakai hari ini</em> (bisa berganti jas hujan di siang hari dan kaos di sore hari).</li>
+                                <li><strong class="text-indigo-600 dark:text-indigo-400">Iklim</strong> itu seperti <em class="underline decoration-indigo-400">Seluruh isi lemari pakaianmu</em> (ditentukan oleh musim dan wilayah tempat tinggalmu).</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Comparison Table -->
+                    <div class="overflow-x-auto my-4">
+                        <table class="w-full text-sm text-left border-collapse">
+                            <thead>
+                                <tr class="bg-sky-50 dark:bg-slate-800 text-sky-900 dark:text-sky-200 border-b border-slate-200 dark:border-slate-700">
+                                    <th class="p-3 font-semibold">Parameter</th>
+                                    <th class="p-3 font-semibold">Cuaca (Weather)</th>
+                                    <th class="p-3 font-semibold">Iklim (Climate)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                                <tr>
+                                    <td class="p-3 font-medium text-slate-700 dark:text-slate-300">Waktu Pengamatan</td>
+                                    <td class="p-3 text-slate-600 dark:text-slate-400">Singkat (Hitungan jam hingga hari)</td>
+                                    <td class="p-3 text-slate-600 dark:text-slate-400">Sangat Panjang (Rata-rata 30–30 tahun)</td>
+                                </tr>
+                                <tr class="bg-slate-50/50 dark:bg-slate-800/30">
+                                    <td class="p-3 font-medium text-slate-700 dark:text-slate-300">Cakupan Wilayah</td>
+                                    <td class="p-3 text-slate-600 dark:text-slate-400">Sempit (Kota, kecamatan, desa)</td>
+                                    <td class="p-3 text-slate-600 dark:text-slate-400">Luas (Negara, benua, atau zona bumi)</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-medium text-slate-700 dark:text-slate-300">Sifat Ciri</td>
+                                    <td class="p-3 text-slate-600 dark:text-slate-400">Cepat berubah-ubah (Dinamis)</td>
+                                    <td class="p-3 text-slate-600 dark:text-slate-400">Relatif stabil dan berulang</td>
+                                </tr>
+                                <tr class="bg-slate-50/50 dark:bg-slate-800/30">
+                                    <td class="p-3 font-medium text-slate-700 dark:text-slate-300">Ilmu Penyelidik</td>
+                                    <td class="p-3 text-slate-600 dark:text-slate-400"><span class="font-bold text-sky-600 dark:text-sky-400">Meteorologi</span></td>
+                                    <td class="p-3 text-slate-600 dark:text-slate-400"><span class="font-bold text-indigo-600 dark:text-indigo-400">Klimatologi</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-medium text-slate-700 dark:text-slate-300">Contoh Fenomena</td>
+                                    <td class="p-3 text-slate-600 dark:text-slate-400">"Pagi ini Surabaya hujan deras, siang cerah"</td>
+                                    <td class="p-3 text-slate-600 dark:text-slate-400">"Indonesia beriklim Tropis dengan 2 musim"</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUB-TAB 2: Unsur & Alat Ukur -->
+            <div id="materi-m2" class="materi-section hidden space-y-6">
+                <div class="glass-card p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                    <h3 class="text-xl font-bold text-sky-600 dark:text-sky-400 flex items-center space-x-2">
+                        <i class="fa-solid fa-temperature-three-quarters"></i>
+                        <span>6 Unsur Utama Pembentuk Cuaca & Alat Ukurnya</span>
+                    </h3>
+                    <p class="text-sm text-slate-600 dark:text-slate-300">Klik kartu di bawah ini untuk mempelajari instrumen pengukurannya:</p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Element 1 -->
+                        <div class="p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-sky-500 transition-all shadow-sm">
+                            <div class="flex items-center space-x-3 mb-2">
+                                <div class="p-2 bg-rose-100 text-rose-600 rounded-lg"><i class="fa-solid fa-temperature-high text-lg"></i></div>
+                                <h4 class="font-bold text-slate-800 dark:text-slate-100">1. Suhu / Temperatur Udara</h4>
+                            </div>
+                            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Derajat panas atau dinginnya udara yang diukur dengan <strong class="text-rose-600">Termometer</strong> (Skala Celsius/Fahrenheit).</p>
+                        </div>
+                        <!-- Element 2 -->
+                        <div class="p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-sky-500 transition-all shadow-sm">
+                            <div class="flex items-center space-x-3 mb-2">
+                                <div class="p-2 bg-blue-100 text-blue-600 rounded-lg"><i class="fa-solid fa-gauge-high text-lg"></i></div>
+                                <h4 class="font-bold text-slate-800 dark:text-slate-100">2. Tekanan Udara</h4>
+                            </div>
+                            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Berat massa udara di atas suatu permukaan. Diukur dengan <strong class="text-blue-600">Barometer</strong> (Satuan: mb / milibar atau mmHg).</p>
+                        </div>
+                        <!-- Element 3 -->
+                        <div class="p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-sky-500 transition-all shadow-sm">
+                            <div class="flex items-center space-x-3 mb-2">
+                                <div class="p-2 bg-emerald-100 text-emerald-600 rounded-lg"><i class="fa-solid fa-wind text-lg"></i></div>
+                                <h4 class="font-bold text-slate-800 dark:text-slate-100">3. Angin (Arah & Kecepatan)</h4>
+                            </div>
+                            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Udara yang bergerak dari area bertekanan tinggi ke rendah. Kecepatan diukur <strong class="text-emerald-600">Anemometer</strong>, arah dengan Wind Vane.</p>
+                        </div>
+                        <!-- Element 4 -->
+                        <div class="p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-sky-500 transition-all shadow-sm">
+                            <div class="flex items-center space-x-3 mb-2">
+                                <div class="p-2 bg-sky-100 text-sky-600 rounded-lg"><i class="fa-solid fa-droplet text-lg"></i></div>
+                                <h4 class="font-bold text-slate-800 dark:text-slate-100">4. Kelembagan Udara</h4>
+                            </div>
+                            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Kandungan uap air dalam udara. Diukur menggunakan <strong class="text-sky-600">Higrometer</strong> (Satuan persen %).</p>
+                        </div>
+                        <!-- Element 5 -->
+                        <div class="p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-sky-500 transition-all shadow-sm">
+                            <div class="flex items-center space-x-3 mb-2">
+                                <div class="p-2 bg-indigo-100 text-indigo-600 rounded-lg"><i class="fa-solid fa-cloud-showers-heavy text-lg"></i></div>
+                                <h4 class="font-bold text-slate-800 dark:text-slate-100">5. Curah Hujan (Presipitasi)</h4>
+                            </div>
+                            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Banyaknya air hujan yang jatuh ke permukaan bumi. Diukur dengan <strong class="text-indigo-600">Ombrometer / Penakar Hujan</strong> (mm).</p>
+                        </div>
+                        <!-- Element 6 -->
+                        <div class="p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-sky-500 transition-all shadow-sm">
+                            <div class="flex items-center space-x-3 mb-2">
+                                <div class="p-2 bg-amber-100 text-amber-600 rounded-lg"><i class="fa-solid fa-sun text-lg"></i></div>
+                                <h4 class="font-bold text-slate-800 dark:text-slate-100">6. Penyinaran Matahari</h4>
+                            </div>
+                            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">Durasi atau lama penyinaran matahari rata-rata harian. Diukur dengan <strong class="text-amber-600">Campbell Stokes</strong>.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUB-TAB 3: Iklim Indonesia & Muson -->
+            <div id="materi-m3" class="materi-section hidden space-y-6">
+                <div class="glass-card p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                    <h3 class="text-xl font-bold text-sky-600 dark:text-sky-400 flex items-center space-x-2">
+                        <i class="fa-solid fa-earth-asia"></i>
+                        <span>Karakteristik Iklim Indonesia & Sistem Angin Muson</span>
+                    </h3>
+                    <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        Secara astronomis (6°LU - 11°LS), Indonesia berada di wilayah lintang rendah sehingga beriklim <strong class="text-sky-600">Tropis Basah</strong>. Ciri khasnya: suhu rata-rata tahunan tinggi (26°C-28°C), kelembapan tinggi, serta curah hujan melimpah.
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                        <!-- Muson Barat -->
+                        <div class="p-5 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 rounded-2xl space-y-3">
+                            <div class="flex items-center space-x-2 text-sky-700 dark:text-sky-300 font-bold">
+                                <i class="fa-solid fa-cloud-showers-water text-xl"></i>
+                                <h4 class="text-base">Angin Muson Barat (Oktober - April)</h4>
+                            </div>
+                            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                                Angin bertiup dari Benua Asia menuju Benua Australia. Karena melewati Samudra Hindia yang luas, angin ini membawa banyak uap air sehingga Indonesia mengalami <strong class="text-sky-600 dark:text-sky-400">Musim Hujan</strong>.
+                            </p>
+                        </div>
+
+                        <!-- Muson Timur -->
+                        <div class="p-5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-2xl space-y-3">
+                            <div class="flex items-center space-x-2 text-amber-700 dark:text-amber-300 font-bold">
+                                <i class="fa-solid fa-sun text-xl"></i>
+                                <h4 class="text-base">Angin Muson Timur (April - Oktober)</h4>
+                            </div>
+                            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                                Angin bertiup dari Benua Australia menuju Asia. Australia mayoritas berupa gurun kering, sehingga angin bersifat kering dan memicu <strong class="text-amber-600 dark:text-amber-400">Musim Kemarau</strong> di sebagian besar wilayah Indonesia.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUB-TAB 4: Perubahan Iklim -->
+            <div id="materi-m4" class="materi-section hidden space-y-6">
+                <div class="glass-card p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                    <h3 class="text-xl font-bold text-sky-600 dark:text-sky-400 flex items-center space-x-2">
+                        <i class="fa-solid fa-temperature-arrow-up"></i>
+                        <span>Pemanasan Global, El Niño & La Niña</span>
+                    </h3>
+                    <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        Aktivitas manusia seperti pembakaran bahan bakar fosil dan deforestasi meningkatkan emisi Gas Rumah Kaca (GRK), memicu pemanasan global dan anomali iklim di Samudra Pasifik.
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                        <div class="p-4 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-xl space-y-2">
+                            <h4 class="font-bold text-red-700 dark:text-red-400 text-sm flex items-center space-x-2">
+                                <i class="fa-solid fa-fire"></i>
+                                <span>Fenomena El Niño</span>
+                            </h4>
+                            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                                Pemanasan suhu permukaan laut di Samudra Pasifik tengah & timur. Menyebabkan penguapan bergeser ke Pasifik, sehingga Indonesia mengalami **kekeringan panjang dan risiko kebakaran hutan**.
+                            </p>
+                        </div>
+
+                        <div class="p-4 bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800 rounded-xl space-y-2">
+                            <h4 class="font-bold text-teal-700 dark:text-teal-400 text-sm flex items-center space-x-2">
+                                <i class="fa-solid fa-water"></i>
+                                <span>Fenomena La Niña</span>
+                            </h4>
+                            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                                Pendinginan suhu permukaan laut Pasifik timur. Mengakibatkan akumulasi uap air melimpah ke wilayah Indonesia, memicu **curah hujan ekstrem, banjir, dan tanah longsor**.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 3: SIMULASI INTERAKTIF ================= -->
+        <section id="tab-simulasi" class="tab-content space-y-6">
+            <div class="glass-card p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+                <div>
+                    <h3 class="text-xl font-bold text-sky-600 dark:text-sky-400 flex items-center space-x-2">
+                        <i class="fa-solid fa-sliders"></i>
+                        <span>Simulator Mikro-Iklim & Gradient Termis</span>
+                    </h3>
+                    <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1">
+                        Geser parameter ketinggian tempat dan kelembapan untuk mengamati perubahan suhu udara, bentang alam Junghuhn, serta kondisi awan secara *real-time*!
+                    </p>
+                </div>
+
+                <!-- Simulator Workspace Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Controls Panel -->
+                    <div class="bg-slate-100 dark:bg-slate-800/80 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-5">
+                        <h4 class="font-bold text-sm text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-700 pb-2 flex items-center space-x-2">
+                            <i class="fa-solid fa-sliders text-sky-500"></i>
+                            <span>Atur Parameter Lingkungan</span>
+                        </h4>
+
+                        <!-- Altitude Slider -->
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-xs font-semibold">
+                                <label for="sim-alt" class="text-slate-700 dark:text-slate-300">Ketinggian Tempat (MDPL):</label>
+                                <span id="val-alt" class="text-sky-600 dark:text-sky-400 font-bold">0 m</span>
+                            </div>
+                            <input type="range" id="sim-alt" min="0" max="3000" step="50" value="0" oninput="updateSimulation()" class="w-full accent-sky-500 cursor-pointer">
+                            <div class="flex justify-between text-[10px] text-slate-400">
+                                <span>Pantai (0m)</span>
+                                <span>Dataran (700m)</span>
+                                <span>Gunung (3000m)</span>
+                            </div>
+                        </div>
+
+                        <!-- Humidity Slider -->
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-xs font-semibold">
+                                <label for="sim-hum" class="text-slate-700 dark:text-slate-300">Kelembapan Udara (%):</label>
+                                <span id="val-hum" class="text-sky-600 dark:text-sky-400 font-bold">60 %</span>
+                            </div>
+                            <input type="range" id="sim-hum" min="20" max="100" step="5" value="60" oninput="updateSimulation()" class="w-full accent-sky-500 cursor-pointer">
+                        </div>
+
+                        <!-- Calculated Stats Box -->
+                        <div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2 text-xs">
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-500">Suhu Udara Estimasi:</span>
+                                <span id="sim-temp-text" class="font-extrabold text-rose-500 text-sm">26.3 °C</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-500">Zona Iklim Junghuhn:</span>
+                                <span id="sim-zone-text" class="font-bold text-emerald-600 dark:text-emerald-400">Panas (0 - 600m)</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-500">Tanaman Cocok:</span>
+                                <span id="sim-crop-text" class="font-medium text-slate-700 dark:text-slate-300">Padi, Tebu, Kelapa</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Visual Canvas Rendering -->
+                    <div class="lg:col-span-2 flex flex-col space-y-3">
+                        <div class="relative w-full h-72 sm:h-80 bg-slate-900 rounded-2xl overflow-hidden border border-slate-300 dark:border-slate-700 shadow-inner">
+                            <canvas id="weatherCanvas" class="w-full h-full block"></canvas>
+                        </div>
+                        <p class="text-[11px] text-slate-500 text-center">
+                            *Visualisasi kanvas memperlihatkan kenaikan lanskap pegunungan, perubahan pembentukan awan hujan, serta tutupan vegetasi sesuai ketinggian.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Drag & Drop Game: Match Instruments -->
+            <div class="glass-card p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-bold text-sky-600 dark:text-sky-400 flex items-center space-x-2">
+                            <i class="fa-solid fa-puzzle-piece"></i>
+                            <span>Mini Game: Pasangkan Alat Ukur & Unsur</span>
+                        </h3>
+                        <p class="text-xs text-slate-600 dark:text-slate-300">Tarik atau klik nama alat ke kotak unsur cuaca yang tepat!</p>
+                    </div>
+                    <button onclick="resetMatchingGame()" class="px-3 py-1.5 text-xs bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 rounded-lg font-semibold transition-all">
+                        <i class="fa-solid fa-rotate-left"></i> Reset Game
+                    </button>
+                </div>
+
+                <!-- Draggable Items -->
+                <div id="drag-sources" class="flex flex-wrap gap-2 p-3 bg-slate-100 dark:bg-slate-800/60 rounded-xl min-h-[50px]">
+                    <!-- Injected dynamically via JS -->
+                </div>
+
+                <!-- Drop Targets -->
+                <div id="drop-targets" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <!-- Injected dynamically via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 4: EVALUASI AKHIR ================= -->
+        <section id="tab-evaluasi" class="tab-content space-y-6">
+            <div class="glass-card p-6 sm:p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+                <!-- Evaluation Banner -->
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
+                    <div>
+                        <h3 class="text-2xl font-extrabold text-slate-800 dark:text-slate-100 flex items-center space-x-3">
+                            <i class="fa-solid fa-pen-to-square text-sky-500"></i>
+                            <span>Evaluasi Pemahaman Materi</span>
+                        </h3>
+                        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                            Jawab 10 soal pilihan ganda berikut. Batas nilai kelulusan adalah <strong class="text-emerald-600 dark:text-emerald-400">75 / 100</strong>.
+                        </p>
+                    </div>
+                    <div class="px-4 py-2 bg-sky-50 dark:bg-sky-950 border border-sky-200 dark:border-sky-800 rounded-xl text-xs font-semibold text-sky-700 dark:text-sky-300">
+                        Total Soal: 10 Butir • Pilihan Ganda
+                    </div>
+                </div>
+
+                <!-- Quiz Questions Form -->
+                <form id="quiz-form" onsubmit="submitQuiz(event)" class="space-y-6">
+                    <div id="quiz-container" class="space-y-6">
+                        <!-- Questions will be injected here via JavaScript -->
+                    </div>
+
+                    <!-- Submit Button & Feedback Area -->
+                    <div class="pt-6 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div id="quiz-score-summary" class="hidden p-4 rounded-xl w-full sm:w-auto"></div>
+                        <button type="submit" id="quiz-submit-btn" class="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-sky-500/25 transition-all">
+                            <i class="fa-solid fa-paper-plane mr-2"></i> Kirim & Laporkan Nilai
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-6 mt-12 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500 dark:text-slate-400 space-y-2">
+            <p>© 2026 Media Pembelajaran Digital IPS SMP Kelas 7 • Standar SCORM 1.2 Compliant</p>
+            <p class="text-[11px] text-slate-400">Dikembangkan untuk mendukung pembelajaran mandiri interaktif pada materi Cuaca dan Iklim.</p>
+        </div>
+    </footer>
+
+    <script>
+        /* ==========================================================================
+           1. SCORM 1.2 API WRAPPER standard functions
+           ========================================================================== */
+        var scormAPI = null;
+        var scormInitialized = false;
+
+        function findSCORMAPI(win) {
+            var attempts = 0;
+            while (win) {
+                try {
+                    if (win.API != null) {
+                        return win.API;
+                    }
+                    if (win.parent == null || win.parent === win) {
+                        break;
+                    }
+                    win = win.parent;
+                } catch (e) {
+                    console.warn("Akses SCORM API dibatasi oleh aturan Cross-Origin (CORS):", e.message);
+                    break;
+                }
+                attempts++;
+                if (attempts > 500) break;
+            }
+            return null;
+        }
+
+        function getSCORMAPI() {
+            var theAPI = findSCORMAPI(window);
+            if (theAPI == null) {
+                try {
+                    if (window.opener != null && typeof(window.opener) !== "undefined") {
+                        theAPI = findSCORMAPI(window.opener);
+                    }
+                } catch (e) {
+                    console.warn("Akses SCORM API pada window.opener dibatasi oleh aturan Cross-Origin:", e.message);
+                }
+            }
+            return theAPI;
+        }
+
+        function initSCORM() {
+            scormAPI = getSCORMAPI();
+            var badgeEl = document.getElementById('scorm-badge');
+            var statusText = document.getElementById('scorm-status-text');
+
+            if (scormAPI != null) {
+                var initResult = scormAPI.LMSInitialize("");
+                if (initResult === "true" || initResult === true) {
+                    scormInitialized = true;
+                    badgeEl.classList.remove('hidden');
+
+                    // Read student name if provided by LMS
+                    var learnerName = scormAPI.LMSGetValue("cmi.core.student_name");
+                    if (learnerName && learnerName !== "") {
+                        document.getElementById('student-name-display').innerText = learnerName;
+                    }
+
+                    // Check existing lesson status
+                    var existingScore = scormAPI.LMSGetValue("cmi.core.score.raw");
+                    if (existingScore && existingScore !== "") {
+                        updateScoreDisplay(parseInt(existingScore));
+                    }
+                }
+            } else {
+                console.warn("SCORM API tidak ditemukan. Aplikasi berjalan dalam mode Standalone/Offline.");
+                if (statusText) statusText.innerText = "Standalone Mode";
+                if (badgeEl) {
+                    badgeEl.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-800');
+                    badgeEl.classList.add('bg-slate-200', 'text-slate-700', 'dark:bg-slate-800', 'dark:text-slate-300');
+                }
+            }
+        }
+
+        function sendSCORMData(score) {
+            if (scormAPI && scormInitialized) {
+                try {
+                    // Send score (0 - 100)
+                    scormAPI.LMSSetValue("cmi.core.score.raw", score.toString());
+                    scormAPI.LMSSetValue("cmi.core.score.min", "0");
+                    scormAPI.LMSSetValue("cmi.core.score.max", "100");
+
+                    // Lesson status logic requirement: passed if score >= 75 else completed
+                    var lessonStatus = (score >= 75) ? "passed" : "completed";
+                    scormAPI.LMSSetValue("cmi.core.lesson_status", lessonStatus);
+
+                    scormAPI.LMSCommit("");
+                    console.log("SCORM Data Committed successfully:", { score, lessonStatus });
+                } catch (e) {
+                    console.error("Gagal mengirim data SCORM:", e);
+                }
+            } else {
+                // LocalStorage fallback for standalone testing
+                localStorage.setItem('scorm_score_raw', score);
+                localStorage.setItem('scorm_lesson_status', (score >= 75) ? "passed" : "completed");
+            }
+        }
+
+        function finishSCORM() {
+            if (scormAPI && scormInitialized) {
+                scormAPI.LMSFinish("");
+            }
+        }
+
+        window.onbeforeunload = function() {
+            finishSCORM();
+        };
+
+        /* ==========================================================================
+           2. UI & TAB NAVIGATION LOGIC
+           ========================================================================== */
+        let progressState = {
+            materiRead: new Set(['m1']),
+            simulationsPlayed: false,
+            score: null
+        };
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-sky-500', 'text-white', 'shadow-md', 'shadow-sky-500/20');
+                btn.classList.add('text-slate-600', 'dark:text-slate-400');
+            });
+
+            document.getElementById('tab-' + tabId).classList.add('active');
+            const activeBtn = document.getElementById('nav-' + tabId);
+            activeBtn.classList.remove('text-slate-600', 'dark:text-slate-400');
+            activeBtn.classList.add('bg-sky-500', 'text-white', 'shadow-md', 'shadow-sky-500/20');
+
+            if (tabId === 'simulasi') {
+                progressState.simulationsPlayed = true;
+                updateDashboardMetrics();
+                setTimeout(initCanvasSimulation, 100);
+            }
+        }
+
+        function switchMateriSubTab(subId) {
+            document.querySelectorAll('.materi-section').forEach(sec => sec.classList.add('hidden'));
+            document.querySelectorAll('.materi-sub-btn').forEach(btn => {
+                btn.classList.remove('bg-sky-500', 'text-white', 'shadow-sm');
+                btn.classList.add('text-slate-600', 'dark:text-slate-400');
+            });
+
+            document.getElementById('materi-' + subId).classList.remove('hidden');
+            const activeSubBtn = document.getElementById('materi-btn-' + subId);
+            activeSubBtn.classList.remove('text-slate-600', 'dark:text-slate-400');
+            activeSubBtn.classList.add('bg-sky-500', 'text-white', 'shadow-sm');
+
+            progressState.materiRead.add(subId);
+            updateDashboardMetrics();
+        }
+
+        function updateDashboardMetrics() {
+            document.getElementById('progress-materi-text').innerText = `${progressState.materiRead.size} / 4 Sub-bab`;
+            document.getElementById('progress-sim-text').innerText = progressState.simulationsPlayed ? "Sudah Dicoba" : "Belum Dicoba";
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                icon.className = 'fa-solid fa-moon';
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.classList.add('dark');
+                icon.className = 'fa-solid fa-sun';
+                localStorage.setItem('theme', 'dark');
+            }
+            if (document.getElementById('tab-simulasi').classList.contains('active')) {
+                drawWeatherCanvas();
+            }
+        }
+
+        /* Web Speech API Narration */
+        let isSpeaking = false;
+        function toggleAudioNarration() {
+            const icon = document.getElementById('tts-icon');
+            if (isSpeaking) {
+                window.speechSynthesis.cancel();
+                isSpeaking = false;
+                icon.className = 'fa-solid fa-volume-high';
+            } else {
+                // Find visible active text
+                let textToRead = "Selamat datang di media pembelajaran IPS Cuaca dan Iklim SMP Kelas 7. Silakan pilih modul materi untuk mulai membaca.";
+                const activeMateri = document.querySelector('.materi-section:not(.hidden)');
+                if (document.getElementById('tab-materi').classList.contains('active') && activeMateri) {
+                    textToRead = activeMateri.innerText;
+                }
+                
+                const utterance = new SpeechSynthesisUtterance(textToRead);
+                utterance.lang = 'id-ID';
+                utterance.onend = function() {
+                    isSpeaking = false;
+                    icon.className = 'fa-solid fa-volume-high';
+                };
+                window.speechSynthesis.speak(utterance);
+                isSpeaking = true;
+                icon.className = 'fa-solid fa-volume-xmark text-rose-500 animate-pulse';
+            }
+        }
+
+        /* ==========================================================================
+           3. CANVAS SIMULATOR LOGIC
+           ========================================================================== */
+        let canvas, ctx;
+
+        function initCanvasSimulation() {
+            canvas = document.getElementById('weatherCanvas');
+            if (!canvas) return;
+            ctx = canvas.getContext('2d');
+            
+            // Set resolution dynamically based on wrapper width
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+
+            updateSimulation();
+        }
+
+        function updateSimulation() {
+            const alt = parseInt(document.getElementById('sim-alt').value);
+            const hum = parseInt(document.getElementById('sim-hum').value);
+
+            document.getElementById('val-alt').innerText = alt + ' m';
+            document.getElementById('val-hum').innerText = hum + ' %';
+
+            // Junghuhn Thermal Gradient Formula: T = T0 - (0.6 * altitude / 100)
+            const baseTemp = 26.3; // Rata-rata permukaan laut tropis
+            const calculatedTemp = (baseTemp - (0.6 * (alt / 100))).toFixed(1);
+
+            document.getElementById('sim-temp-text').innerText = calculatedTemp + ' °C';
+
+            // Determine Junghuhn Zone
+            let zoneText = "";
+            let cropText = "";
+            if (alt <= 600) {
+                zoneText = "Zona Panas (0 - 600m)";
+                cropText = "Padi, Tebu, Kelapa, Jagung";
+            } else if (alt <= 1500) {
+                zoneText = "Zona Sedang (600 - 1500m)";
+                cropText = "Teh, Kopi, Karet, Cokelat";
+            } else if (alt <= 2500) {
+                zoneText = "Zona Sejuk (1500 - 2500m)";
+                cropText = "Pinus, Sayuran (Wortel, Kubis)";
+            } else {
+                zoneText = "Zona Dingin (> 2500m)";
+                cropText = "Lumut & Tidak Ada Tanaman Budidaya";
+            }
+
+            document.getElementById('sim-zone-text').innerText = zoneText;
+            document.getElementById('sim-crop-text').innerText = cropText;
+
+            drawWeatherCanvas(alt, hum, parseFloat(calculatedTemp));
+        }
+
+        function drawWeatherCanvas(alt = 0, hum = 60, temp = 26) {
+            if (!ctx || !canvas) return;
+
+            const w = canvas.width;
+            const h = canvas.height;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // 1. Sky Gradient based on Altitude & Theme
+            const skyGrad = ctx.createLinearGradient(0, 0, 0, h);
+            if (alt > 2000) {
+                skyGrad.addColorStop(0, '#0284c7'); // Darker blue high altitude
+                skyGrad.addColorStop(1, '#e0f2fe');
+            } else {
+                skyGrad.addColorStop(0, '#38bdf8');
+                skyGrad.addColorStop(1, '#bae6fd');
+            }
+            ctx.fillStyle = skyGrad;
+            ctx.fillRect(0, 0, w, h);
+
+            // 2. Draw Sun / Rays
+            ctx.beginPath();
+            ctx.arc(w - 60, 50, 30, 0, Math.PI * 2);
+            ctx.fillStyle = '#fbbf24';
+            ctx.shadowColor = '#f59e0b';
+            ctx.shadowBlur = 20;
+            ctx.fill();
+            ctx.shadowBlur = 0; // reset shadow
+
+            // 3. Draw Mountain Landscape (Higher altitude raises the terrain)
+            ctx.beginPath();
+            ctx.moveTo(0, h);
+            ctx.lineTo(0, h - 80);
+            ctx.quadraticCurveTo(w * 0.4, h - 120 - (alt / 15), w * 0.7, h - 60);
+            ctx.lineTo(w, h - 40);
+            ctx.lineTo(w, h);
+            ctx.closePath();
+
+            // Mountain Color by Temperature/Zone
+            let mountainColor = '#16a34a'; // Green lowland
+            if (alt > 1500) mountainColor = '#15803d';
+            if (alt > 2500) mountainColor = '#64748b'; // Rocky grey peak
+            ctx.fillStyle = mountainColor;
+            ctx.fill();
+
+            // Snow Peak for very high alt (>2500m)
+            if (alt > 2400) {
+                ctx.beginPath();
+                ctx.moveTo(w * 0.35, h - 160 - (alt / 20));
+                ctx.lineTo(w * 0.42, h - 200 - (alt / 18));
+                ctx.lineTo(w * 0.48, h - 150 - (alt / 20));
+                ctx.fillStyle = '#ffffff';
+                ctx.fill();
+            }
+
+            // 4. Clouds & Rain Density based on Humidity
+            const cloudCount = Math.floor(hum / 20);
+            ctx.fillStyle = hum > 75 ? 'rgba(100, 116, 139, 0.85)' : 'rgba(255, 255, 255, 0.85)';
+            for (let i = 0; i < cloudCount; i++) {
+                let cx = (i * (w / 4)) + 40;
+                let cy = 40 + (i % 2) * 20;
+                ctx.beginPath();
+                ctx.arc(cx, cy, 22, 0, Math.PI * 2);
+                ctx.arc(cx + 20, cy - 10, 28, 0, Math.PI * 2);
+                ctx.arc(cx + 45, cy, 20, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Draw Rain drops if high humidity
+                if (hum >= 70) {
+                    ctx.strokeStyle = '#38bdf8';
+                    ctx.lineWidth = 1.5;
+                    for (let r = 0; r < 5; r++) {
+                        ctx.beginPath();
+                        ctx.moveTo(cx + r * 10, cy + 30);
+                        ctx.lineTo(cx + r * 10 - 5, cy + 50);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        /* ==========================================================================
+           4. DRAG AND DROP MINI GAME
+           ========================================================================== */
+        const gameData = [
+            { id: 'inst-1', name: 'Termometer', target: 'Suhu Udara' },
+            { id: 'inst-2', name: 'Barometer', target: 'Tekanan Udara' },
+            { id: 'inst-3', name: 'Anemometer', target: 'Kecepatan Angin' },
+            { id: 'inst-4', name: 'Higrometer', target: 'Kelembapan Udara' },
+            { id: 'inst-5', name: 'Ombrometer', target: 'Curah Hujan' },
+            { id: 'inst-6', name: 'Campbell Stokes', target: 'Penyinaran Matahari' }
+        ];
+
+        let selectedDragItem = null;
+
+        function resetMatchingGame() {
+            const sourcesContainer = document.getElementById('drag-sources');
+            const targetsContainer = document.getElementById('drop-targets');
+
+            sourcesContainer.innerHTML = '';
+            targetsContainer.innerHTML = '';
+
+            // Shuffle tools
+            const shuffledTools = [...gameData].sort(() => Math.random() - 0.5);
+
+            shuffledTools.forEach(item => {
+                const tag = document.createElement('div');
+                tag.id = item.id;
+                tag.draggable = true;
+                tag.className = 'px-3 py-2 bg-white dark:bg-slate-700 border border-sky-300 dark:border-slate-600 rounded-lg text-xs font-bold text-sky-700 dark:text-sky-300 cursor-grab hover:shadow-md transition-all flex items-center space-x-1 select-none';
+                tag.innerHTML = `<i class="fa-solid fa-grip-vertical text-slate-400 mr-1"></i> ${item.name}`;
+
+                // Touch & Drag events
+                tag.addEventListener('dragstart', (e) => {
+                    selectedDragItem = item;
+                    e.dataTransfer.setData('text/plain', item.id);
+                });
+
+                tag.addEventListener('click', () => {
+                    document.querySelectorAll('#drag-sources div').forEach(d => d.classList.remove('ring-2', 'ring-sky-500'));
+                    selectedDragItem = item;
+                    tag.classList.add('ring-2', 'ring-sky-500');
+                });
+
+                sourcesContainer.appendChild(tag);
+            });
+
+            gameData.forEach(targetItem => {
+                const card = document.createElement('div');
+                card.className = 'drop-card p-3 bg-white dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl space-y-2 flex flex-col justify-between min-h-[90px]';
+                card.dataset.target = targetItem.target;
+
+                card.innerHTML = `
+                    <div class="text-xs font-bold text-slate-700 dark:text-slate-300">${targetItem.target}</div>
+                    <div class="target-slot text-xs text-slate-400 italic p-1 bg-slate-50 dark:bg-slate-900 rounded border border-slate-100 dark:border-slate-800 text-center">
+                        Drop Alat Di Sini
+                    </div>
+                `;
+
+                // Drag over & Drop handlers
+                card.addEventListener('dragover', (e) => e.preventDefault());
+                card.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    if (selectedDragItem) {
+                        checkMatch(selectedDragItem, targetItem.target, card);
+                    }
+                });
+
+                card.addEventListener('click', () => {
+                    if (selectedDragItem) {
+                        checkMatch(selectedDragItem, targetItem.target, card);
+                    }
+                });
+
+                targetsContainer.appendChild(card);
+            });
+        }
+
+        function checkMatch(item, targetName, cardElement) {
+            const slot = cardElement.querySelector('.target-slot');
+            if (item.target === targetName) {
+                slot.className = 'target-slot text-xs font-bold text-emerald-700 dark:text-emerald-300 p-2 bg-emerald-100 dark:bg-emerald-950/60 rounded border border-emerald-300 dark:border-emerald-800 text-center flex items-center justify-center space-x-1';
+                slot.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>${item.name}</span>`;
+
+                const originalEl = document.getElementById(item.id);
+                if (originalEl) originalEl.remove();
+
+                selectedDragItem = null;
+            } else {
+                slot.className = 'target-slot text-xs font-bold text-rose-600 p-2 bg-rose-50 dark:bg-rose-950/40 rounded border border-rose-200 text-center';
+                slot.innerHTML = `<i class="fa-solid fa-circle-xmark mr-1"></i> Salah, coba lagi!`;
+                setTimeout(() => {
+                    slot.className = 'target-slot text-xs text-slate-400 italic p-1 bg-slate-50 dark:bg-slate-900 rounded border border-slate-100 dark:border-slate-800 text-center';
+                    slot.innerText = 'Drop Alat Di Sini';
+                }, 1500);
+            }
+        }
+
+        /* ==========================================================================
+           5. EVALUATION QUIZ & SCORM DATA SUBMISSION LOGIC
+           ========================================================================== */
+        const quizQuestions = [
+            {
+                q: "Perbedaan utama antara cuaca dan iklim terletak pada...",
+                options: [
+                    "A. Unsur-unsur pembentuknya",
+                    "B. Waktu pengamatan dan luas wilayahnya",
+                    "C. Alat instrumen yang digunakan untuk mengukur",
+                    "D. Dampaknya terhadap aktivitas ekonomi penduduk"
+                ],
+                answer: 1,
+                explain: "Cuaca diamati dalam waktu singkat & wilayah sempit, sedangkan iklim diamati dalam rentang waktu lama (30 tahun) & wilayah luas."
+            },
+            {
+                q: "Alat yang digunakan untuk mengukur kecepatan angin adalah...",
+                options: [
+                    "A. Barometer",
+                    "B. Higrometer",
+                    "C. Anemometer",
+                    "D. Ombrometer"
+                ],
+                answer: 2,
+                explain: "Anemometer digunakan untuk mengukur kecepatan angin, sedangkan Barometer mengukur tekanan udara."
+            },
+            {
+                q: "Indonesia beriklim tropis karena secara astronomis terletak di lintang...",
+                options: [
+                    "A. 6°LU – 11°LS",
+                    "B. 23,5°LU – 40°LS",
+                    "C. 40°LU – 66,5°LS",
+                    "D. 66,5°LU – 90°LS"
+                ],
+                answer: 0,
+                explain: "Wilayah tropis berada di antara 23,5°LU - 23,5°LS, dan Indonesia tepat berada di 6°LU – 11°LS."
+            },
+            {
+                q: "Angin Muson Barat bertiup dari Benua Asia ke Benua Australia. Fenomena ini menyebabkan Indonesia mengalami...",
+                options: [
+                    "A. Musim Kemarau",
+                    "B. Musim Hujan",
+                    "C. Musim Pancaroba",
+                    "D. Badai Salju"
+                ],
+                answer: 1,
+                explain: "Angin Muson Barat melintasi Samudra Hindia yang luas sehingga membawa banyak uap air dan memicu musim hujan."
+            },
+            {
+                q: "Menurut Hukum Gradient Termis, setiap kenaikan ketinggian 100 meter dari permukaan laut, suhu udara rata-rata akan...",
+                options: [
+                    "A. Naik 0,6 °C",
+                    "B. Turun 0,6 °C",
+                    "C. Naik 1,0 °C",
+                    "D. Tetap konstan"
+                ],
+                answer: 1,
+                explain: "Setiap naik 100 meter dpl di daerah tropis, suhu rata-rata mengalami penurunan sebesar ±0,6 °C."
+            },
+            {
+                q: "Fenomena pemanasan suhu permukaan laut Pasifik tengah yang berdampak kekeringan di Indonesia disebut...",
+                options: [
+                    "A. La Niña",
+                    "B. El Niño",
+                    "C. Tsunami",
+                    "D. Angin Fohn"
+                ],
+                answer: 1,
+                explain: "El Niño memicu pergeseran uap air ke Pasifik timur sehingga Indonesia mengalami penurunan curah hujan / kekeringan."
+            },
+            {
+                q: "Instrumen ilmiah yang digunakan untuk mengukur curah hujan adalah...",
+                options: [
+                    "A. Ombrometer",
+                    "B. Thermometer",
+                    "C. Altimeter",
+                    "D. Hygrometer"
+                ],
+                answer: 0,
+                explain: "Ombrometer / Penakar Hujan mengukur volume air hujan dalam satuan milimeter (mm)."
+            },
+            {
+                q: "Klasifikasi iklim berdasarkan Ketinggian dan Jenis Tanaman Budidaya digagas oleh ilmuwan bernama...",
+                options: [
+                    "A. Wladimir Köppen",
+                    "B. Franz Wilhelm Junghuhn",
+                    "C. Schmidt-Ferguson",
+                    "D. Oldeman"
+                ],
+                answer: 1,
+                explain: "Junghuhn membagi iklim menjadi Zona Panas, Sedang, Sejuk, dan Dingin berdasarkan ketinggian tempat."
+            },
+            {
+                q: "Gas Rumah Kaca (GRK) yang berlebihan di atmosfer dapat memicu pemanasan global. Contoh aktivitas manusia pemicunya adalah...",
+                options: [
+                    "A. Reboisasi hutan",
+                    "B. Penanaman mangrove",
+                    "C. Pembakaran bahan bakar fosil industri & kendaraan",
+                    "D. Penggunaan energi panel surya"
+                ],
+                answer: 2,
+                explain: "Pembakaran bahan bakar fosil menghasilkan gas CO2 tinggi yang memerangkap panas matahari di bumi."
+            },
+            {
+                q: "Kandungan uap air yang terdapat di dalam udara disebut...",
+                options: [
+                    "A. Tekanan udara",
+                    "B. Kelembapan udara",
+                    "C. Temperatur udara",
+                    "D. Presipitasi"
+                ],
+                answer: 1,
+                explain: "Kelembapan udara menggambarkan tingkat uap air di udara, diukur dengan Higrometer."
+            }
+        ];
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+
+            quizQuestions.forEach((q, idx) => {
+                const qBox = document.createElement('div');
+                qBox.className = 'p-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl space-y-3 shadow-sm';
+                
+                let optionsHtml = '';
+                q.options.forEach((opt, optIdx) => {
+                    optionsHtml += `
+                        <label class="flex items-center space-x-3 p-3 rounded-xl border border-slate-100 dark:border-slate-700/60 hover:bg-sky-50/50 dark:hover:bg-slate-700/50 cursor-pointer transition-all text-xs sm:text-sm">
+                            <input type="radio" name="question-${idx}" value="${optIdx}" class="accent-sky-500 w-4 h-4" required>
+                            <span class="text-slate-700 dark:text-slate-300 font-medium">${opt}</span>
+                        </label>
+                    `;
+                });
+
+                qBox.innerHTML = `
+                    <div class="flex items-start space-x-3">
+                        <span class="px-2.5 py-1 bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 font-bold text-xs rounded-lg">${idx + 1}</span>
+                        <h4 class="font-semibold text-sm sm:text-base text-slate-800 dark:text-slate-100 pt-0.5">${q.q}</h4>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
+                        ${optionsHtml}
+                    </div>
+                    <div id="explain-${idx}" class="hidden p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border text-xs leading-relaxed mt-2"></div>
+                `;
+                container.appendChild(qBox);
+            });
+        }
+
+        function submitQuiz(e) {
+            e.preventDefault();
+
+            let correctCount = 0;
+            quizQuestions.forEach((q, idx) => {
+                const selected = document.querySelector(`input[name="question-${idx}"]:checked`);
+                const explainBox = document.getElementById(`explain-${idx}`);
+                
+                explainBox.classList.remove('hidden');
+
+                if (selected && parseInt(selected.value) === q.answer) {
+                    correctCount++;
+                    explainBox.className = 'p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 text-emerald-800 dark:text-emerald-300 text-xs mt-2';
+                    explainBox.innerHTML = `<i class="fa-solid fa-circle-check mr-1 text-emerald-500"></i> <strong>Benar!</strong> ${q.explain}`;
+                } else {
+                    explainBox.className = 'p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 text-rose-800 dark:text-rose-300 text-xs mt-2';
+                    explainBox.innerHTML = `<i class="fa-solid fa-circle-xmark mr-1 text-rose-500"></i> <strong>Kurang Tepat.</strong> Jawaban benar: ${q.options[q.answer]}. ${q.explain}`;
+                }
+            });
+
+            // Calculate final score out of 100
+            const finalScore = Math.round((correctCount / quizQuestions.length) * 100);
+            progressState.score = finalScore;
+
+            // Display result banner
+            const summaryBox = document.getElementById('quiz-score-summary');
+            summaryBox.classList.remove('hidden');
+
+            const isPassed = finalScore >= 75;
+            summaryBox.className = `p-4 rounded-xl border text-sm font-semibold ${isPassed ? 'bg-emerald-50 text-emerald-900 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-200' : 'bg-amber-50 text-amber-900 border-amber-300 dark:bg-amber-950 dark:text-amber-200'}`;
+            summaryBox.innerHTML = `
+                <div class="flex items-center space-x-3">
+                    <i class="fa-solid ${isPassed ? 'fa-award text-emerald-500 text-3xl' : 'fa-triangle-exclamation text-amber-500 text-3xl'}"></i>
+                    <div>
+                        <div class="text-base font-extrabold">Skor Akhir Anda: ${finalScore} / 100</div>
+                        <div class="text-xs font-normal mt-0.5">
+                            Status Kelulusan: <strong>${isPassed ? 'LULUS (Passed)' : 'BELUM LULUS (Completed)'}</strong> (Minimal Skor 75).
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            updateScoreDisplay(finalScore);
+
+            // Send score and status to SCORM 1.2 LMS API
+            sendSCORMData(finalScore);
+        }
+
+        function updateScoreDisplay(score) {
+            document.getElementById('score-display-text').innerText = score + ' / 100';
+            const statusEl = document.getElementById('status-display-text');
+            if (score >= 75) {
+                statusEl.innerText = "Selesai (Passed)";
+                statusEl.className = "text-sm font-bold text-emerald-600 dark:text-emerald-400";
+            } else {
+                statusEl.innerText = "Selesai (Completed)";
+                statusEl.className = "text-sm font-bold text-amber-600 dark:text-amber-400";
+            }
+        }
+
+        /* ==========================================================================
+           6. INITIALIZATION & RESIZE EVENT LISTENERS
+           ========================================================================== */
+        window.onload = function() {
+            // Restore saved theme
+            if (localStorage.getItem('theme') === 'dark') {
+                document.documentElement.classList.add('dark');
+                document.getElementById('theme-icon').className = 'fa-solid fa-sun';
+            }
+
+            // Initialize SCORM Connection
+            initSCORM();
+
+            // Setup Mini Game
+            resetMatchingGame();
+
+            // Setup Evaluation Quiz
+            renderQuiz();
+
+            // Resize Canvas dynamically
+            window.addEventListener('resize', () => {
+                if (document.getElementById('tab-simulasi').classList.contains('active')) {
+                    initCanvasSimulation();
+                }
+            });
+        };
+    </script>
+</body>
+</html>
