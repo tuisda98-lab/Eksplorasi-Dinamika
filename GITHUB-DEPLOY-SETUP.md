@@ -1,21 +1,16 @@
 # GitHub Pages dan Supabase Secrets
 
-## Supabase Function Secrets
+## Supabase Database
 
-Buka project Supabase, lalu masuk ke **Edge Functions > Secrets**. Tambahkan:
-
-- `DB_SERVICE_ROLE_KEY`: service role/secret key dari Project Settings > API. Nama ini tidak memakai prefix `SUPABASE_` karena prefix tersebut dicadangkan oleh Supabase.
-- `EDGE_AUTH_SECRET`: secret acak panjang yang dibuat sendiri.
-
-Secret ini disimpan langsung di Supabase dan tidak perlu dikirim melalui GitHub Actions. Jangan menaruh nilainya di repository.
+Jalankan `supabase-setup.sql` di Supabase SQL Editor. Untuk mode sederhana, jalankan juga `supabase-policy-secure.sql` agar frontend dapat menyimpan dan membaca hasil melalui publishable key.
 
 ## GitHub Actions Secrets
 
 Buka repository GitHub, lalu pilih **Settings > Secrets and variables > Actions > New repository secret**. Tambahkan:
 
-- `SUPABASE_ACCESS_TOKEN`: access token dari Supabase Account > Access Tokens. Dipakai GitHub Actions untuk deploy function.
+- Tidak ada secret Supabase yang diperlukan untuk deploy halaman statis.
 
-Jangan menambahkan nilai secret ke `index.html`, SQL, commit, issue, atau log workflow.
+Tidak perlu menjalankan atau mengatur Edge Function untuk mode sederhana ini. Jangan menambahkan secret ke `index.html`, SQL, commit, issue, atau log workflow.
 
 ## GitHub Pages
 
@@ -23,10 +18,6 @@ Pada repository GitHub, buka **Settings > Pages**, lalu pilih **Source: GitHub A
 
 Workflow hanya mengunggah `index.html` dan `imsmanifest.xml` ke Pages. Folder `supabase`, SQL, dan dependency tidak ikut dipublikasikan sebagai artifact Pages.
 
-## Supabase Database
-
-Jalankan `supabase-policy-secure.sql` satu kali setelah `supabase-setup.sql`. Policy tersebut mencabut akses langsung `anon` ke tabel nilai. Browser hanya boleh memanggil Edge Function.
-
 ## Keamanan
 
-`SUPABASE_URL` dan publishable/anon key di `index.html` bukan secret dan memang dapat terlihat oleh browser. Keamanan sebenarnya berasal dari Row Level Security dan Edge Function. `DB_SERVICE_ROLE_KEY`, `SUPABASE_ACCESS_TOKEN`, dan `EDGE_AUTH_SECRET` tidak pernah boleh dimasukkan ke repository.
+`SUPABASE_URL` dan publishable/anon key di `index.html` bukan secret dan memang dapat terlihat oleh browser. Mode sederhana ini mengutamakan kemudahan deploy; karena policy `anon` dapat membaca data, jangan gunakan untuk data yang sangat rahasia.

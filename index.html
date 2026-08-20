@@ -914,9 +914,9 @@
         const RESULTS_STORAGE_KEY = 'geolearn_evaluation_results';
         const SUPABASE_URL = 'https://vjqqcdniqrqhylxswxmw.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_teO9YW952HhkOuiSRNeBvg_Q48cyyyp';
-        const EVALUATION_API_ENDPOINT = `${SUPABASE_URL}/functions/v1/evaluation-api`;
+        const SUPABASE_RESULTS_ENDPOINT = `${SUPABASE_URL}/rest/v1/evaluation_results`;
+        const SUPABASE_TEACHER_LOGIN_ENDPOINT = `${SUPABASE_URL}/rest/v1/rpc/verify_teacher_login`;
         const TEACHER_SESSION_KEY = 'geolearn_teacher_authenticated';
-        const TEACHER_TOKEN_KEY = 'geolearn_teacher_token';
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -1465,7 +1465,7 @@
         }
 
         function isTeacherAuthenticated() {
-            return sessionStorage.getItem(TEACHER_SESSION_KEY) === 'true' && Boolean(sessionStorage.getItem(TEACHER_TOKEN_KEY));
+            return sessionStorage.getItem(TEACHER_SESSION_KEY) === 'true';
         }
 
         function clearLegacyTeacherStorage() {
@@ -1490,33 +1490,20 @@
             const loginError = document.getElementById('teacher-login-error');
 
             try {
-                const response = await fetch(EVALUATION_API_ENDPOINT, {
+                const response = await fetch(SUPABASE_TEACHER_LOGIN_ENDPOINT, {
                     method: 'POST',
                     headers: {
                         apikey: SUPABASE_ANON_KEY,
+                        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        action: 'login',
-                        username,
-                        passwordHash: await hashTeacherPassword(password)
+                        input_username: username,
+                        input_password_hash: await hashTeacherPassword(password)
                     })
                 });
-                const loginResult = await response.json();
-                if (response.status === 401) {
-                    loginError.innerText = 'Username atau password salah.';
-                    throw new Error('Kredensial login tidak valid');
-                }
-                if (response.status === 404) {
-                    loginError.innerText = 'Layanan login belum aktif. Deploy Edge Function terlebih dahulu.';
-                    throw new Error('Edge Function tidak ditemukan');
-                }
-                if (!response.ok || !loginResult.token) {
-                    loginError.innerText = 'Layanan login sedang bermasalah. Coba lagi nanti.';
-                    throw new Error('Login gagal');
-                }
+                if (!response.ok || (await response.json()) !== true) throw new Error('Login gagal');
                 sessionStorage.setItem(TEACHER_SESSION_KEY, 'true');
-                sessionStorage.setItem(TEACHER_TOKEN_KEY, loginResult.token);
                 document.getElementById('teacher-password').value = '';
                 loginError.classList.add('hidden');
                 updateTeacherAccess();
@@ -1528,7 +1515,6 @@
 
         function logoutTeacher() {
             sessionStorage.removeItem(TEACHER_SESSION_KEY);
-            sessionStorage.removeItem(TEACHER_TOKEN_KEY);
             document.getElementById('teacher-username').value = '';
             document.getElementById('teacher-password').value = '';
             updateTeacherAccess();
@@ -1549,20 +1535,21 @@
             localStorage.setItem(RESULTS_STORAGE_KEY, JSON.stringify(results));
 
             try {
-                const response = await fetch(EVALUATION_API_ENDPOINT, {
+                const response = await fetch(SUPABASE_RESULTS_ENDPOINT, {
                     method: 'POST',
                     headers: {
                         apikey: SUPABASE_ANON_KEY,
+                        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        action: 'submit',
                         name: result.name,
-                        studentClass: result.studentClass,
-                        score: result.score
+                        student_class: result.studentClass,
+                        score: result.score,
+                        completed_at: result.completedAt
                     })
                 });
-                if (!response.ok) throw new Error(`Evaluation API HTTP ${response.status}`);
+                if (!response.ok) throw new Error(`Supabase HTTP ${response.status}`);
                 return true;
             } catch (error) {
                 console.warn('Hasil disimpan lokal karena sinkronisasi online gagal:', error);
@@ -1588,16 +1575,13 @@
         }
 
         async function fetchOnlineResults() {
-            const response = await fetch(EVALUATION_API_ENDPOINT, {
-                method: 'POST',
+            const response = await fetch(`${SUPABASE_RESULTS_ENDPOINT}?select=id,name,student_class,score,completed_at&order=completed_at.desc`, {
                 headers: {
                     apikey: SUPABASE_ANON_KEY,
-                    Authorization: `Bearer ${sessionStorage.getItem(TEACHER_TOKEN_KEY)}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ action: 'list' })
+                    Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+                }
             });
-            if (!response.ok) throw new Error(`Evaluation API HTTP ${response.status}`);
+            if (!response.ok) throw new Error(`Supabase HTTP ${response.status}`);
             return (await response.json()).map(result => ({
                 id: result.id,
                 name: result.name,
@@ -1683,16 +1667,14 @@
             if (getEvaluationResults().length && confirm('Hapus semua data nilai yang tersimpan di browser ini?')) {
                 localStorage.removeItem(RESULTS_STORAGE_KEY);
                 try {
-                    const response = await fetch(EVALUATION_API_ENDPOINT, {
-                        method: 'POST',
+                    const response = await fetch(`${SUPABASE_RESULTS_ENDPOINT}?id=not.is.null`, {
+                        method: 'DELETE',
                         headers: {
                             apikey: SUPABASE_ANON_KEY,
-                            Authorization: `Bearer ${sessionStorage.getItem(TEACHER_TOKEN_KEY)}`,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ action: 'delete' })
+                            Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+                        }
                     });
-                    if (!response.ok) throw new Error(`Evaluation API HTTP ${response.status}`);
+                    if (!response.ok) throw new Error(`Supabase HTTP ${response.status}`);
                 } catch (error) {
                     console.warn('Data online tidak dapat dihapus:', error);
                 }
