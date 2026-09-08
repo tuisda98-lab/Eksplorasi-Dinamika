@@ -8,15 +8,28 @@ Jalankan `supabase-setup.sql` di Supabase SQL Editor. Untuk mode sederhana, jala
 
 Buka repository GitHub, lalu pilih **Settings > Secrets and variables > Actions > New repository secret**. Tambahkan:
 
-- Tidak ada secret Supabase yang diperlukan untuk deploy halaman statis.
+- Untuk deploy halaman statis saja, tidak ada secret Supabase yang diperlukan.
 
-Tidak perlu menjalankan atau mengatur Edge Function untuk mode sederhana ini. Jangan menambahkan secret ke `index.html`, SQL, commit, issue, atau log workflow.
+Jangan menambahkan secret ke `index.html`, SQL, commit, issue, atau log workflow.
+
+## Teacher Login API
+
+Login guru menggunakan Edge Function `evaluation-api`, bukan file yang dijalankan oleh GitHub Pages. Function tersebut harus dideploy ke project Supabase terlebih dahulu. Dari root repository, jalankan:
+
+```powershell
+supabase login
+supabase link --project-ref vjqqcdniqrqhylxswxmw
+supabase secrets set DB_SERVICE_ROLE_KEY="PASTE_SERVICE_ROLE_KEY_HERE" EDGE_AUTH_SECRET="GENERATE_A_LONG_RANDOM_SECRET_HERE"
+supabase functions deploy evaluation-api --no-verify-jwt
+```
+
+Nilai `DB_SERVICE_ROLE_KEY` dan `EDGE_AUTH_SECRET` hanya disimpan sebagai secret Supabase. Setelah function aktif, halaman GitHub Pages dapat memanggil endpoint login di `/functions/v1/evaluation-api`.
 
 ## GitHub Pages
 
 Pada repository GitHub, buka **Settings > Pages**, lalu pilih **Source: GitHub Actions**. Workflow `.github/workflows/deploy.yml` akan otomatis menjalankan deploy setiap ada push ke branch `main`.
 
-Workflow hanya mengunggah `index.html` dan `imsmanifest.xml` ke Pages. Folder `supabase`, SQL, dan dependency tidak ikut dipublikasikan sebagai artifact Pages.
+Workflow hanya mengunggah `index.html` dan `imsmanifest.xml` ke Pages. Folder `supabase`, SQL, dan dependency tidak ikut dipublikasikan sebagai artifact Pages. Karena itu, push ke GitHub tidak otomatis mendeploy Edge Function.
 
 ## Keamanan
 
