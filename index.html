@@ -915,7 +915,7 @@
         const SUPABASE_URL = 'https://vjqqcdniqrqhylxswxmw.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_teO9YW952HhkOuiSRNeBvg_Q48cyyyp';
         const SUPABASE_RESULTS_ENDPOINT = `${SUPABASE_URL}/rest/v1/evaluation_results`;
-        const SUPABASE_TEACHER_LOGIN_ENDPOINT = `${SUPABASE_URL}/rest/v1/rpc/verify_teacher_login`;
+        const SUPABASE_TEACHER_API_ENDPOINT = `${SUPABASE_URL}/functions/v1/evaluation-api`;
         const TEACHER_SESSION_KEY = 'geolearn_teacher_authenticated';
 
         function switchTab(tabId) {
@@ -1465,7 +1465,7 @@
         }
 
         function isTeacherAuthenticated() {
-            return sessionStorage.getItem(TEACHER_SESSION_KEY) === 'true';
+            return Boolean(sessionStorage.getItem(TEACHER_SESSION_KEY));
         }
 
         function clearLegacyTeacherStorage() {
@@ -1490,7 +1490,7 @@
             const loginError = document.getElementById('teacher-login-error');
 
             try {
-                const response = await fetch(SUPABASE_TEACHER_LOGIN_ENDPOINT, {
+                const response = await fetch(SUPABASE_TEACHER_API_ENDPOINT, {
                     method: 'POST',
                     headers: {
                         apikey: SUPABASE_ANON_KEY,
@@ -1498,12 +1498,14 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        input_username: username,
-                        input_password_hash: await hashTeacherPassword(password)
+                        action: 'login',
+                        username,
+                        passwordHash: await hashTeacherPassword(password)
                     })
                 });
-                if (!response.ok || (await response.json()) !== true) throw new Error('Login gagal');
-                sessionStorage.setItem(TEACHER_SESSION_KEY, 'true');
+                const loginResult = await response.json();
+                if (!response.ok || !loginResult.token) throw new Error('Login gagal');
+                sessionStorage.setItem(TEACHER_SESSION_KEY, loginResult.token);
                 document.getElementById('teacher-password').value = '';
                 loginError.classList.add('hidden');
                 updateTeacherAccess();
