@@ -68,7 +68,7 @@ async function isValidTeacherToken(request: Request, secret: string) {
 
 async function supabaseRequest(path: string, options: RequestInit = {}) {
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
-  const serviceRoleKey = Deno.env.get('DB_SERVICE_ROLE_KEY');
+  const serviceRoleKey = Deno.env.get('DB_SERVICE_ROLE_KEY') || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
   if (!supabaseUrl || !serviceRoleKey) throw new Error('Supabase environment belum dikonfigurasi.');
 
   return fetch(`${supabaseUrl}/rest/v1/${path}`, {
