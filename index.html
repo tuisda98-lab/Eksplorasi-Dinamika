@@ -912,10 +912,7 @@
             score: null
         };
         const RESULTS_STORAGE_KEY = 'geolearn_evaluation_results';
-        const SUPABASE_URL = 'https://ruiceqwbltalwqcslqty.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_wrfPFA3IaS3iIZ8Ac7w-cA_Y3DN7jQB';
-        const SUPABASE_RESULTS_ENDPOINT = `${SUPABASE_URL}/rest/v1/evaluation_results`;
-        const SUPABASE_TEACHER_API_ENDPOINT = `${SUPABASE_URL}/functions/v1/evaluation-api`;
+        const EVALUATION_API_ENDPOINT = '/api/evaluation-api';
         const TEACHER_SESSION_KEY = 'geolearn_teacher_authenticated';
 
         function switchTab(tabId) {
@@ -1243,7 +1240,7 @@
                 selectedDragItem = null;
             } else {
                 slot.className = 'target-slot text-xs font-bold text-rose-600 p-2 bg-rose-50 dark:bg-rose-950/40 rounded border border-rose-200 text-center';
-                slot.innerHTML = `<i class="fa-solid fa-circle-xmark mr-1"></i> Salah, coba lagi!`;
+                slot.innerHTML = `<i class="fa-solid fa-circle-xmark mr-1 text-rose-500"></i> Salah, coba lagi!`;
                 setTimeout(() => {
                     slot.className = 'target-slot text-xs text-slate-400 italic p-1 bg-slate-50 dark:bg-slate-900 rounded border border-slate-100 dark:border-slate-800 text-center';
                     slot.innerText = 'Drop Alat Di Sini';
@@ -1490,11 +1487,9 @@
             const loginError = document.getElementById('teacher-login-error');
 
             try {
-                const response = await fetch(SUPABASE_TEACHER_API_ENDPOINT, {
+                const response = await fetch(EVALUATION_API_ENDPOINT, {
                     method: 'POST',
                     headers: {
-                        apikey: SUPABASE_ANON_KEY,
-                        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
@@ -1537,21 +1532,20 @@
             localStorage.setItem(RESULTS_STORAGE_KEY, JSON.stringify(results));
 
             try {
-                const response = await fetch(SUPABASE_RESULTS_ENDPOINT, {
+                const response = await fetch(EVALUATION_API_ENDPOINT, {
                     method: 'POST',
                     headers: {
-                        apikey: SUPABASE_ANON_KEY,
-                        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
+                        action: 'submit',
                         name: result.name,
-                        student_class: result.studentClass,
+                        studentClass: result.studentClass,
                         score: result.score,
-                        completed_at: result.completedAt
+                        completedAt: result.completedAt
                     })
                 });
-                if (!response.ok) throw new Error(`Supabase HTTP ${response.status}`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 return true;
             } catch (error) {
                 console.warn('Hasil disimpan lokal karena sinkronisasi online gagal:', error);
@@ -1577,20 +1571,24 @@
         }
 
         async function fetchOnlineResults() {
-            const response = await fetch(`${SUPABASE_RESULTS_ENDPOINT}?select=id,name,student_class,score,completed_at&order=completed_at.desc`, {
+            const token = sessionStorage.getItem(TEACHER_SESSION_KEY);
+            const response = await fetch(EVALUATION_API_ENDPOINT, {
+                method: 'POST',
                 headers: {
-                    apikey: SUPABASE_ANON_KEY,
-                    Authorization: `Bearer ${SUPABASE_ANON_KEY}`
-                }
+                    'Content-Type': 'application/json',
+                    ...(token ? { Authorization: `Bearer ${token}` } : {})
+                },
+                body: JSON.stringify({ action: 'list' })
             });
-            if (!response.ok) throw new Error(`Supabase HTTP ${response.status}`);
-            return (await response.json()).map(result => ({
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+            return Array.isArray(data) ? data.map(result => ({
                 id: result.id,
                 name: result.name,
-                studentClass: result.student_class,
+                studentClass: result.studentClass,
                 score: result.score,
-                completedAt: result.completed_at
-            }));
+                completedAt: result.completedAt
+            })) : [];
         }
 
         async function renderEvaluationResults() {
@@ -1607,7 +1605,7 @@
 
             if (syncStatus) {
                 syncStatus.innerHTML = isOnline
-                    ? '<i class="fa-solid fa-cloud text-emerald-500 mr-1"></i> Tersinkron online dari Supabase'
+                    ? '<i class="fa-solid fa-database text-emerald-500 mr-1"></i> Tersinkron online dari database MySQL'
                     : '<i class="fa-solid fa-cloud-arrow-down text-amber-500 mr-1"></i> Offline: menampilkan cache perangkat ini';
             }
 
@@ -1669,14 +1667,16 @@
             if (getEvaluationResults().length && confirm('Hapus semua data nilai yang tersimpan di browser ini?')) {
                 localStorage.removeItem(RESULTS_STORAGE_KEY);
                 try {
-                    const response = await fetch(`${SUPABASE_RESULTS_ENDPOINT}?id=not.is.null`, {
-                        method: 'DELETE',
+                    const token = sessionStorage.getItem(TEACHER_SESSION_KEY);
+                    const response = await fetch(EVALUATION_API_ENDPOINT, {
+                        method: 'POST',
                         headers: {
-                            apikey: SUPABASE_ANON_KEY,
-                            Authorization: `Bearer ${SUPABASE_ANON_KEY}`
-                        }
+                            'Content-Type': 'application/json',
+                            ...(token ? { Authorization: `Bearer ${token}` } : {})
+                        },
+                        body: JSON.stringify({ action: 'delete' })
                     });
-                    if (!response.ok) throw new Error(`Supabase HTTP ${response.status}`);
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 } catch (error) {
                     console.warn('Data online tidak dapat dihapus:', error);
                 }

@@ -1,5 +1,7 @@
 {
-  "devDependencies": {
-    "supabase": "^2.115.0"
+  "name": "eksplorasi-dinamika",
+  "private": true,
+  "dependencies": {
+    "mysql2": "^3.12.0"
   }
 }
